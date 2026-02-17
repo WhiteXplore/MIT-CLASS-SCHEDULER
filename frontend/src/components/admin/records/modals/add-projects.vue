@@ -131,7 +131,7 @@
                   :class="{
                     'opacity-50 cursor-not-allowed': isAssigned(
                       form.course_id,
-                      section.section_id
+                      section.section_id,
                     ),
                   }"
                 >
@@ -206,7 +206,7 @@ export default {
       return this.courses.filter(
         (course) =>
           course.curriculum_id === this.form.curriculum_id &&
-          String(course.course_level) === String(this.form.project_level)
+          String(course.course_level) === String(this.form.project_level),
       );
     },
   },
@@ -223,10 +223,10 @@ export default {
     ]),
     updateProjectSection() {
       const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id
+        (c) => c.course_id === this.form.course_id,
       );
       const section = this.sections.find(
-        (s) => s.section_id === this.form.section_id
+        (s) => s.section_id === this.form.section_id,
       );
 
       this.form.project_section =
@@ -240,7 +240,7 @@ export default {
         (p) =>
           p.course_id === courseId &&
           p.section_id === sectionId &&
-          String(p.project_level) === String(this.form.project_level)
+          String(p.project_level) === String(this.form.project_level),
       );
     },
     async submitData() {
@@ -250,8 +250,8 @@ export default {
       }
       try {
         await axios.post(
-          "http://localhost:8000/projected/add-projected",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/projected/add-projected",
+          this.form,
         );
         toast.success("Project added successfully!");
         new Audio(require("@/assets/add.mp3")).play();

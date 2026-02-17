@@ -132,8 +132,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/sections/update-section/${this.sectionData.section_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/sections/update-section/${this.sectionData.section_id}`,
+          this.form,
         );
         toast.success("Instructor updated successfully!");
 
@@ -145,7 +145,7 @@ export default {
       } catch (error) {
         console.error(
           "Error updating instructor:",
-          error.response?.data || error
+          error.response?.data || error,
         );
         toast.error("Failed to update instructor.");
       }

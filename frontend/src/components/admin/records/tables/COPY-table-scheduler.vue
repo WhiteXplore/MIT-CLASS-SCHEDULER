@@ -70,7 +70,7 @@
                       :key="idx"
                       class="bg-white rounded-lg p-3 border border-blue-200 shadow hover:shadow-md transition-all"
                       :title="`${slot.instructorName} (${formatTime(
-                        slot.startTime
+                        slot.startTime,
                       )} - ${formatTime(slot.endTime)})`"
                     >
                       <div
@@ -233,7 +233,7 @@ export default {
             item.instructor?.instructor_lname || ""
           }`
             .toLowerCase()
-            .includes(q)
+            .includes(q),
       );
     },
 
@@ -243,7 +243,7 @@ export default {
       const selected = dayjs(this.selectedDay).format("YYYY-MM-DD");
 
       let daySlots = this.roomSchedules.filter(
-        (slot) => dayjs(slot.date).format("YYYY-MM-DD") === selected
+        (slot) => dayjs(slot.date).format("YYYY-MM-DD") === selected,
       );
 
       if (!this.searchQuery) return daySlots;
@@ -254,7 +254,8 @@ export default {
         (slot) =>
           slot.room.toLowerCase().includes(q) ||
           slot.status.toLowerCase().includes(q) ||
-          (slot.instructorName && slot.instructorName.toLowerCase().includes(q))
+          (slot.instructorName &&
+            slot.instructorName.toLowerCase().includes(q)),
       );
     },
     totalPages() {
@@ -283,7 +284,7 @@ export default {
     endIndex() {
       return Math.min(
         this.currentPage * this.itemsPerPage,
-        this.filteredData.length
+        this.filteredData.length,
       );
     },
 
@@ -309,7 +310,7 @@ export default {
 
       const idsOnPage = new Set(this.paginatedScheduleIds);
       return this.filteredDaySlots.filter((slot) =>
-        idsOnPage.has(slot.schedule_id)
+        idsOnPage.has(slot.schedule_id),
       );
     },
   },
@@ -434,7 +435,7 @@ export default {
       try {
         // Assuming you want to delete a schedule by schedule_id
         await axios.delete(
-          `http://localhost:8000/class-schedules/delete-id/${this.recordToDelete.schedule_id}`
+          `${process.env.VUE_APP_API_BASE_URL}/class-schedules/delete-id/${this.recordToDelete.schedule_id}`,
         );
 
         // Play sound after successful delete

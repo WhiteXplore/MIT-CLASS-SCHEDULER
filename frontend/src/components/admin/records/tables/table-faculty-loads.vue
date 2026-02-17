@@ -249,7 +249,7 @@ export default {
       return this.instructors.filter((item) =>
         `${item.instructor_fname} ${item.instructor_mname} ${item.instructor_lname}`
           .toLowerCase()
-          .includes(query)
+          .includes(query),
       );
     },
     totalPages() {
@@ -307,7 +307,7 @@ export default {
       if (!this.recordToDelete) return;
       try {
         await axios.delete(
-          `http://localhost:8000/instructors/delete-id/${this.recordToDelete.instructor_id}`
+          `${process.env.VUE_APP_API_BASE_URL}/instructors/delete-id/${this.recordToDelete.instructor_id}`,
         );
 
         // Play sound after successful delete

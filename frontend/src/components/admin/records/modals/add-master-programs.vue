@@ -104,7 +104,10 @@ export default {
       }
 
       try {
-        await axios.post("http://localhost:8000/master/add-master", this.form);
+        await axios.post(
+          process.env.VUE_APP_API_BASE_URL + "/master/add-master",
+          this.form,
+        );
         this.$emit("close");
         toast.success("Master program added successfully!");
       } catch (error) {

@@ -109,8 +109,8 @@ export default {
 
       try {
         await axios.post(
-          "http://localhost:8000/doctorate/add-doctorate",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/doctorate/add-doctorate",
+          this.form,
         );
         this.$emit("close");
         toast.success("Doctorate program added successfully!");

@@ -91,8 +91,8 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://localhost:8000/time/add-time",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/time/add-time",
+          this.form,
         );
         console.log(response);
         console.log("Submitting form:", this.form);

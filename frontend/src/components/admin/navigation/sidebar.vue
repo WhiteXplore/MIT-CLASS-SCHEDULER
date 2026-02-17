@@ -610,7 +610,7 @@ export default {
       for (const item of allDropdownItems) {
         if (item.children) {
           const match = item.children.find((child) =>
-            path.startsWith(child.route)
+            path.startsWith(child.route),
           );
           if (match || path.startsWith(item.route)) {
             this.isExpanded = true;
@@ -626,9 +626,12 @@ export default {
     },
     async fetchUser() {
       try {
-        const response = await axios.get("http://localhost:8000/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/auth/me",
+          {
+            withCredentials: true,
+          },
+        );
 
         if (response.data) {
           this.user = response.data;

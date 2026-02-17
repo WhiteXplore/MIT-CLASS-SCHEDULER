@@ -97,8 +97,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/time/update-time/${this.timeData.time_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/time/update-time/${this.timeData.time_id}`,
+          this.form,
         );
         toast.success("Time updated successfully!");
 

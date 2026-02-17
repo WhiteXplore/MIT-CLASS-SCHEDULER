@@ -119,8 +119,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/rooms/update-room/${this.roomData.room_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/rooms/update-room/${this.roomData.room_id}`,
+          this.form,
         );
         toast.success("Room updated successfully!");
 

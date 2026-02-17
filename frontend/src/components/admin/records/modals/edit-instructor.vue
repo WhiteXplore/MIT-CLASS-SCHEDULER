@@ -287,8 +287,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/instructors/update-instructor/${this.instructorData.instructor_id}`,
-          payload
+          `${process.env.VUE_APP_API_BASE_URL}/instructors/update-instructor/${this.instructorData.instructor_id}`,
+          payload,
         );
         toast.success("Instructor updated successfully!");
         new Audio(require("@/assets/add.mp3")).play();
@@ -297,7 +297,7 @@ export default {
       } catch (error) {
         console.error(
           "Error updating instructor:",
-          error.response?.data || error
+          error.response?.data || error,
         );
         toast.error("Failed to update instructor.");
       }

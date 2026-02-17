@@ -127,8 +127,8 @@ export default {
       try {
         // Use PUT to update existing record by ID
         await axios.patch(
-          `http://localhost:8000/master/${this.masterProgram.masterprogram_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/master/${this.masterProgram.masterprogram_id}`,
+          this.form,
         );
 
         this.$emit("close");

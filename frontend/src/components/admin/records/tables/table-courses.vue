@@ -314,7 +314,7 @@ export default {
           item.course_requisite,
         ]
           .filter(Boolean) // skip null/undefined
-          .some((field) => field.toLowerCase().includes(query))
+          .some((field) => field.toLowerCase().includes(query)),
       );
     },
 
@@ -381,7 +381,9 @@ export default {
       const courseId = this.recordToDelete.course_id;
 
       axios
-        .delete(`http://localhost:8000/courses/delete-id/${courseId}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/courses/delete-id/${courseId}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

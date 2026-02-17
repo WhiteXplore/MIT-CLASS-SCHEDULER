@@ -274,7 +274,7 @@ export default {
             .includes(this.searchCourseQuery.toLowerCase()) ||
           course.course_description
             .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase())
+            .includes(this.searchCourseQuery.toLowerCase()),
       );
     },
 
@@ -334,8 +334,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/courses/update-course/${this.form.course_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/courses/update-course/${this.form.course_id}`,
+          this.form,
         );
 
         toast.success("Course updated successfully!");
@@ -354,7 +354,7 @@ export default {
         course_id: this.courseData.course_id,
         curriculum_id: Number(
           this.courseData.curriculum_id ||
-            this.courseData.curriculum?.curriculum_id
+            this.courseData.curriculum?.curriculum_id,
         ),
         course_code: this.courseData.course_code,
         course_offer_code: this.courseData.course_offer_code,
@@ -371,7 +371,7 @@ export default {
           .split(",")
           .map((code) => {
             const course = this.courses.find(
-              (c) => c.course_code === code.trim()
+              (c) => c.course_code === code.trim(),
             );
             return (
               course || {
@@ -394,7 +394,7 @@ export default {
         // add "All Courses"
         if (
           !this.selectedRequisites.some(
-            (req) => req.course_code === "ALL-COURSES"
+            (req) => req.course_code === "ALL-COURSES",
           )
         ) {
           this.selectedRequisites.push({
@@ -406,14 +406,14 @@ export default {
       } else {
         // remove "All Courses" when internship cleared
         this.selectedRequisites = this.selectedRequisites.filter(
-          (req) => req.course_code !== "ALL-COURSES"
+          (req) => req.course_code !== "ALL-COURSES",
         );
       }
     },
 
     "form.curriculum_id"(newId) {
       this.availableCourses = this.courses.filter(
-        (course) => course.curriculum_id === parseInt(newId)
+        (course) => course.curriculum_id === parseInt(newId),
       );
     },
   },

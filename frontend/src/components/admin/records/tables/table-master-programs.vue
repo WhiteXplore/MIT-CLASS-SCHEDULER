@@ -252,7 +252,7 @@ export default {
       return (this.masters || []).filter((item) =>
         [item.master_category, item.master_type]
           .filter(Boolean)
-          .some((field) => field.toString().toLowerCase().includes(query))
+          .some((field) => field.toString().toLowerCase().includes(query)),
       );
     },
 
@@ -317,7 +317,9 @@ export default {
       const masterID = this.recordToDelete.masterprogram_id;
 
       axios
-        .delete(`http://localhost:8000/master/master-id/${masterID}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/master/master-id/${masterID}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

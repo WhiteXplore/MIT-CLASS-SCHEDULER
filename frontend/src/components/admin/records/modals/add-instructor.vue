@@ -254,7 +254,7 @@ export default {
 
         if (!personalFieldsFilled) {
           toast.warning(
-            "Please complete all personal information before continuing."
+            "Please complete all personal information before continuing.",
           );
           return;
         }
@@ -289,8 +289,8 @@ export default {
 
       try {
         await axios.post(
-          "http://localhost:8000/instructors/add-instructor",
-          payload
+          process.env.VUE_APP_API_BASE_URL + "/instructors/add-instructor",
+          payload,
         );
         toast.success("Instructor added successfully!");
         new Audio(require("@/assets/add.mp3")).play();

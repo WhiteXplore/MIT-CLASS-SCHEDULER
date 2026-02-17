@@ -286,9 +286,9 @@ export default {
           dayjs(
             `${this.currentMonth.format("YYYY-MM")}-${String(i).padStart(
               2,
-              "0"
-            )}`
-          )
+              "0",
+            )}`,
+          ),
         );
       }
 
@@ -366,7 +366,7 @@ export default {
       const index = this.events.findIndex(
         (e) =>
           e.date === this.selectedEvent.date &&
-          e.title === this.selectedEvent.title
+          e.title === this.selectedEvent.title,
       );
       if (index !== -1) {
         this.events[index].title = this.selectedEvent.title;
@@ -380,16 +380,19 @@ export default {
           !(
             e.date === this.selectedEvent.date &&
             e.title === this.selectedEvent.title
-          )
+          ),
       );
       this.selectedEvent = null;
       toast.success("Event deleted successfully!");
     },
     async fetchUser() {
       try {
-        const response = await axios.get("http://localhost:8000/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/auth/me",
+          {
+            withCredentials: true,
+          },
+        );
 
         if (response.data) {
           this.user = response.data;

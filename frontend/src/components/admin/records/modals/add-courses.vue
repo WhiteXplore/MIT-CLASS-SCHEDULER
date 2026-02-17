@@ -268,7 +268,7 @@ export default {
             .includes(this.searchCourseQuery.toLowerCase()) ||
           course.course_description
             .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase())
+            .includes(this.searchCourseQuery.toLowerCase()),
       );
     },
 
@@ -328,8 +328,8 @@ export default {
 
       try {
         await axios.post(
-          "http://localhost:8000/courses/add-courses",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/courses/add-courses",
+          this.form,
         );
         toast.success("Course added successfully!");
         const audio = new Audio(require("@/assets/add.mp3"));
@@ -345,7 +345,7 @@ export default {
   watch: {
     "form.curriculum_id"(newId) {
       this.availableCourses = this.courses.filter(
-        (course) => course.curriculum_id === parseInt(newId)
+        (course) => course.curriculum_id === parseInt(newId),
       );
     },
 
@@ -354,7 +354,7 @@ export default {
         // Auto-add "All Courses"
         if (
           !this.selectedRequisites.some(
-            (req) => req.course_code === "ALL-COURSES"
+            (req) => req.course_code === "ALL-COURSES",
           )
         ) {
           this.selectedRequisites = [
@@ -368,7 +368,7 @@ export default {
       } else {
         // Remove "All Courses" if Internship is cleared
         this.selectedRequisites = this.selectedRequisites.filter(
-          (req) => req.course_code !== "ALL-COURSES"
+          (req) => req.course_code !== "ALL-COURSES",
         );
       }
     },

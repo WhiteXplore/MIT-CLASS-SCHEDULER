@@ -129,8 +129,8 @@ export default {
       try {
         // Assuming you want to update existing bachelor program, use PUT or PATCH with id
         await axios.patch(
-          `http://localhost:8000/bachelor/${this.bachelorProgram.bachelorprogram_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/bachelor/${this.bachelorProgram.bachelorprogram_id}`,
+          this.form,
         );
 
         this.$emit("close");

@@ -22,12 +22,12 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/auth/login",
+          process.env.VUE_APP_API_BASE_URL + "/auth/login",
           {
             email: this.email,
             password: this.password,
           },
-          { withCredentials: true }
+          { withCredentials: true },
         );
         const role = response.data.role;
         localStorage.setItem("role", role);

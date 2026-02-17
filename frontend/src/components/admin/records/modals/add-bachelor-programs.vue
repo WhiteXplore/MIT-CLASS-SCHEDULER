@@ -107,8 +107,8 @@ export default {
 
       try {
         await axios.post(
-          "http://localhost:8000/bachelor/add-bachelor",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/bachelor/add-bachelor",
+          this.form,
         );
         this.$emit("close");
         toast.success("Bachelor program added successfully!");

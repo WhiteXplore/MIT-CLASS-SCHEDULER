@@ -130,8 +130,8 @@ export default {
 
       try {
         await axios.put(
-          `http://localhost:8000/doctorate/${this.doctorateProgram.doctorateprogram_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/doctorate/${this.doctorateProgram.doctorateprogram_id}`,
+          this.form,
         );
 
         this.$emit("close");

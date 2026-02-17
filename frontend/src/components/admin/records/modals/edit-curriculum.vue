@@ -209,7 +209,7 @@ export default {
       return this.programs.filter(
         (program) =>
           program.program_name.toLowerCase().includes(query) ||
-          program.program_major.toLowerCase().includes(query)
+          program.program_major.toLowerCase().includes(query),
       );
     },
   },
@@ -223,7 +223,7 @@ export default {
     populateForm() {
       this.form = { ...this.curriculumData };
       const selectedProgram = this.programs.find(
-        (p) => p.program_id === this.curriculumData.program_id
+        (p) => p.program_id === this.curriculumData.program_id,
       );
       if (selectedProgram) {
         this.searchProgramQuery = `${selectedProgram.program_name} - ${selectedProgram.program_major}`;
@@ -239,8 +239,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/curriculums/update-curriculum/${this.curriculumData.curriculum_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/curriculums/update-curriculum/${this.curriculumData.curriculum_id}`,
+          this.form,
         );
         toast.success("Instructor updated successfully!");
 
@@ -252,7 +252,7 @@ export default {
       } catch (error) {
         console.error(
           "Error updating instructor:",
-          error.response?.data || error
+          error.response?.data || error,
         );
         toast.error("Failed to update instructor.");
       }

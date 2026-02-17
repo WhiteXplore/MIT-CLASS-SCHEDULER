@@ -251,7 +251,7 @@ export default {
       return (this.bachelors || []).filter((item) =>
         [item.bachelor_category, item.bachelor_type]
           .filter(Boolean)
-          .some((field) => field.toString().toLowerCase().includes(query))
+          .some((field) => field.toString().toLowerCase().includes(query)),
       );
     },
 
@@ -310,7 +310,9 @@ export default {
       const bachelorID = this.recordToDelete.bachelorprogram_id;
 
       axios
-        .delete(`http://localhost:8000/bachelor/bachelor-id/${bachelorID}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/bachelor/bachelor-id/${bachelorID}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

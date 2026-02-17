@@ -128,8 +128,8 @@ export default {
       this.loading = true;
       try {
         await axios.patch(
-          `http://localhost:8000/programs/update-program/${this.programData.program_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/programs/update-program/${this.programData.program_id}`,
+          this.form,
         );
         toast.success("Program updated successfully!");
 

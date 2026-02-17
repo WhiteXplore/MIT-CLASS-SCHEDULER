@@ -155,7 +155,7 @@ export default {
     filteredCourses() {
       if (!this.form.curriculum_id) return [];
       return this.courses.filter(
-        (course) => course.curriculum_id === this.form.curriculum_id
+        (course) => course.curriculum_id === this.form.curriculum_id,
       );
     },
   },
@@ -172,10 +172,10 @@ export default {
 
     updateProjectSection() {
       const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id
+        (c) => c.course_id === this.form.course_id,
       );
       const section = this.sections.find(
-        (s) => s.section_id === this.form.section_id
+        (s) => s.section_id === this.form.section_id,
       );
       if (course && section) {
         this.form.project_section = `${course.course_offer_code} - ${section.section_set}`;
@@ -193,8 +193,8 @@ export default {
 
       try {
         await axios.patch(
-          `http://localhost:8000/projected/update-project/${this.projectData.project_id}`,
-          this.form
+          `${process.env.VUE_APP_API_BASE_URL}/projected/update-project/${this.projectData.project_id}`,
+          this.form,
         );
         toast.success("Project updated successfully!");
 

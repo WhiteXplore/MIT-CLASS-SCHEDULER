@@ -259,7 +259,9 @@ export default {
     filteredData() {
       const q = this.searchQuery.toLowerCase();
       return this.flattenedProjects.filter((item) =>
-        `${item.program_name} ${item.curriculum_name}`.toLowerCase().includes(q)
+        `${item.program_name} ${item.curriculum_name}`
+          .toLowerCase()
+          .includes(q),
       );
     },
 
@@ -326,7 +328,7 @@ export default {
       if (!this.recordToDelete) return;
       try {
         await axios.delete(
-          `http://localhost:8000/projected/delete-id/${this.recordToDelete.project_id}`
+          `${process.env.VUE_APP_API_BASE_URL}/projected/delete-id/${this.recordToDelete.project_id}`,
         );
         const store = useFetchDataStore();
         await store.fetchCurriculums();

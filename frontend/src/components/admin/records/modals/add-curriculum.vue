@@ -207,7 +207,7 @@ export default {
       return this.programs.filter(
         (program) =>
           program.program_name.toLowerCase().includes(query) ||
-          program.program_major.toLowerCase().includes(query)
+          program.program_major.toLowerCase().includes(query),
       );
     },
   },
@@ -227,8 +227,8 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/curriculums/add-curriculums",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/curriculums/add-curriculums",
+          this.form,
         );
         console.log(response.data),
           // All fields are valid

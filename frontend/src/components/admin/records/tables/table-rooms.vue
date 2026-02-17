@@ -260,7 +260,7 @@ export default {
       return this.rooms.filter((item) =>
         [item.room_name, item.room_number, item.room_type]
           .filter(Boolean) // skip null/undefined
-          .some((field) => field.toString().toLowerCase().includes(query))
+          .some((field) => field.toString().toLowerCase().includes(query)),
       );
     },
     totalPages() {
@@ -325,7 +325,7 @@ export default {
       const roomId = this.recordToDelete.room_id;
 
       axios
-        .delete(`http://localhost:8000/rooms/delete-id/${roomId}`)
+        .delete(`${process.env.VUE_APP_API_BASE_URL}/rooms/delete-id/${roomId}`)
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

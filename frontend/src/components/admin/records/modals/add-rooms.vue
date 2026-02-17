@@ -117,8 +117,8 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://localhost:8000/rooms/add-rooms",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/rooms/add-rooms",
+          this.form,
         );
         console.log(response);
         console.log("Submitting form:", this.form);

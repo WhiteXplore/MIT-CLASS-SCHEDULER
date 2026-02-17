@@ -407,7 +407,7 @@ export default {
     endIndex() {
       return Math.min(
         this.currentPage * this.itemsPerPage,
-        this.filteredData.length
+        this.filteredData.length,
       );
     },
     pageNumbers() {
@@ -499,10 +499,10 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/class-schedules/delete-id/${id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/class-schedules/delete-id/${id}`,
           {
             method: "DELETE",
-          }
+          },
         );
         toast.success("Record successfully deleted!");
         if (!response.ok) {

@@ -260,7 +260,7 @@ export default {
           item.school_year_effective ?? ""
         } ${item.term_status ?? ""}`
           .toLowerCase()
-          .includes(query)
+          .includes(query),
       );
     },
     totalPages() {
@@ -327,7 +327,9 @@ export default {
       }
       const id = this.recordToDelete.semester_settings_id;
       axios
-        .delete(`http://localhost:8000/semester-settings/delete-id/${id}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/semester-settings/delete-id/${id}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

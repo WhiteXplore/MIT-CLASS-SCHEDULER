@@ -126,8 +126,8 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/sections/add-sections",
-          this.form
+          process.env.VUE_APP_API_BASE_URL + "/sections/add-sections",
+          this.form,
         );
         console.log(response.data);
         console.log("Submitting form:", this.form);

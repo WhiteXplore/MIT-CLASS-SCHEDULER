@@ -253,7 +253,7 @@ export default {
       return this.doctorates.filter((item) =>
         [item.doctorate_category, item.doctorate_type]
           .filter(Boolean)
-          .some((field) => field.toString().toLowerCase().includes(query))
+          .some((field) => field.toString().toLowerCase().includes(query)),
       );
     },
 
@@ -317,7 +317,9 @@ export default {
       const doctorateID = this.recordToDelete.doctorateprogram_id;
 
       axios
-        .delete(`http://localhost:8000/doctorate/doctorate-id/${doctorateID}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/doctorate/doctorate-id/${doctorateID}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

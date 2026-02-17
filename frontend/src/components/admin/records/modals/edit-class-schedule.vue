@@ -611,16 +611,16 @@ export default {
     ]),
     assignedProjectIds() {
       return new Set(
-        this.schedulers.map((s) => String(s.project_id)).filter(Boolean)
+        this.schedulers.map((s) => String(s.project_id)).filter(Boolean),
       );
     },
 
     filteredProjects() {
       const selectedCourse = this.courses.find(
-        (c) => c.course_id === this.form.course_id
+        (c) => c.course_id === this.form.course_id,
       );
       const selectedRoom = this.rooms.find(
-        (r) => r.room_id === this.form.room_id
+        (r) => r.room_id === this.form.room_id,
       );
 
       if (!selectedCourse) return [];
@@ -669,7 +669,7 @@ export default {
       return this.instructors.filter((i) =>
         `${i.instructor_lname} ${i.instructor_fname}`
           .toLowerCase()
-          .includes(this.searchInstructorQuery.toLowerCase())
+          .includes(this.searchInstructorQuery.toLowerCase()),
       );
     },
     uniquePrograms() {
@@ -678,7 +678,7 @@ export default {
       const programs = this.courses
         .filter(
           (course) =>
-            course.course_semester === Number(this.form.selectedSemester)
+            course.course_semester === Number(this.form.selectedSemester),
         )
         .map((course) => course.curriculum?.program?.program_name)
         .filter(Boolean);
@@ -700,7 +700,7 @@ export default {
 
     filteredRooms() {
       const selectedCourse = this.courses.find(
-        (c) => c.course_id === this.form.course_id
+        (c) => c.course_id === this.form.course_id,
       );
 
       if (!selectedCourse) return [];
@@ -726,7 +726,7 @@ export default {
       this.courses
         .filter(
           (course) =>
-            course.course_semester === Number(this.form.selectedSemester)
+            course.course_semester === Number(this.form.selectedSemester),
         )
         .forEach((course) => {
           const program = course.curriculum?.program;
@@ -796,21 +796,21 @@ export default {
         return toast.error("Select start and end time.");
 
       const startIdx = this.time.findIndex(
-        (t) => t.time === this.form.time_start
+        (t) => t.time === this.form.time_start,
       );
       const endIdx = this.time.findIndex((t) => t.time === this.form.time_end);
       if (startIdx === -1 || endIdx === -1 || startIdx >= endIdx)
         return toast.error("Invalid start or end time.");
 
       const instructor = this.instructors.find(
-        (i) => i.instructor_id === this.form.instructor_id
+        (i) => i.instructor_id === this.form.instructor_id,
       );
       const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id
+        (c) => c.course_id === this.form.course_id,
       );
       const room = this.rooms.find((r) => r.room_id === this.form.room_id);
       const project = this.projects.find(
-        (p) => p.project_id === this.form.project_id
+        (p) => p.project_id === this.form.project_id,
       );
 
       if (!room) return toast.error("Room not found.");
@@ -826,7 +826,8 @@ export default {
 
       try {
         const res = await axios.get(
-          "http://localhost:8000/class-schedules/get-class-schedules"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-class-schedules",
         );
         const existing = res.data;
         // ✅ Rule FIRST: Limit total lecture time based on course_lec, per project
@@ -848,7 +849,7 @@ export default {
           .filter(
             (s) =>
               String(s.project?.project_id ?? s.project_id) ===
-              String(this.form.project_id)
+              String(this.form.project_id),
           )
           .reduce((sum, s) => {
             const days = Array.isArray(s.schedule_days)
@@ -909,7 +910,7 @@ export default {
           .filter(
             (s) =>
               String(s.project?.project_id ?? s.project_id) ===
-              String(this.form.project_id)
+              String(this.form.project_id),
           )
           .reduce((sum, s) => {
             const days = Array.isArray(s.schedule_days)
@@ -965,7 +966,7 @@ export default {
             this.form.time_start,
             this.form.time_end,
             sched.time_start,
-            sched.time_end
+            sched.time_end,
           );
 
           const courseMatch =
@@ -1045,7 +1046,7 @@ export default {
             ...conflict,
             instructor_fname:
               this.instructors.find(
-                (c) => c.instructor_id === conflict.instructor_id
+                (c) => c.instructor_id === conflict.instructor_id,
               )?.instructor_lname || conflict.instructor_id,
             course_code:
               this.courses.find((c) => c.course_id === conflict.course_id)
@@ -1063,7 +1064,8 @@ export default {
 
         // ✅ Save if no conflicts and hour constraints are followed
         await axios.post(
-          "http://localhost:8000/class-schedules/add-class-schedules",
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/add-class-schedules",
           {
             instructor_id: this.form.instructor_id,
             course_id: this.form.course_id,
@@ -1072,7 +1074,7 @@ export default {
             project_id: this.form.project_id,
             time_start: this.form.time_start,
             time_end: this.form.time_end,
-          }
+          },
         );
 
         new Audio(require("@/assets/add.mp3")).play();

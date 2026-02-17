@@ -32,7 +32,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/instructors/get-instructors"
+          process.env.VUE_APP_API_BASE_URL + "/instructors/get-instructors",
         ); // Update with your NestJS base URL
         this.instructors = response.data;
       } catch (err) {
@@ -47,7 +47,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/courses/get-courses"
+          process.env.VUE_APP_API_BASE_URL + "/courses/get-courses",
         ); // Update with your NestJS base URL
         this.courses = response.data;
       } catch (err) {
@@ -62,7 +62,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/curriculums/get-curriculums"
+          process.env.VUE_APP_API_BASE_URL + "/curriculums/get-curriculums",
         ); // Update with your NestJS base URL
         this.curriculums = response.data;
       } catch (err) {
@@ -77,7 +77,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/programs/get-programs"
+          process.env.VUE_APP_API_BASE_URL + "/programs/get-programs",
         ); // Update with your NestJS base URL
         this.programs = response.data;
       } catch (err) {
@@ -92,7 +92,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/sections/get-sections"
+          process.env.VUE_APP_API_BASE_URL + "/sections/get-sections",
         ); // Update with your NestJS base URL
         this.sections = response.data;
       } catch (err) {
@@ -107,7 +107,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/rooms/get-rooms"
+          process.env.VUE_APP_API_BASE_URL + "/rooms/get-rooms",
         ); // Update with your NestJS base URL
         this.rooms = response.data;
       } catch (err) {
@@ -121,7 +121,9 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get("http://localhost:8000/time/get-time"); // Update with your NestJS base URL
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/time/get-time",
+        ); // Update with your NestJS base URL
         this.time = response.data;
       } catch (err) {
         this.error = err.message || "Failed to fetch time";
@@ -135,7 +137,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-class-schedules"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-class-schedules",
         ); // Update with your NestJS base URL
         this.schedulers = response.data;
       } catch (err) {
@@ -150,7 +153,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/projected/get-projected"
+          process.env.VUE_APP_API_BASE_URL + "/projected/get-projected",
         ); // Update with your NestJS base URL
         this.projects = response.data;
       } catch (err) {
@@ -165,7 +168,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/bachelor/get-bachelor"
+          process.env.VUE_APP_API_BASE_URL + "/bachelor/get-bachelor",
         ); // Update with your NestJS base URL
         this.bachelors = response.data;
       } catch (err) {
@@ -180,7 +183,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/master/get-master"
+          process.env.VUE_APP_API_BASE_URL + "/master/get-master",
         ); // Update with your NestJS base URL
         this.masters = response.data;
       } catch (err) {
@@ -195,7 +198,7 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/doctorate/get-doctorate"
+          process.env.VUE_APP_API_BASE_URL + "/doctorate/get-doctorate",
         ); // Update with your NestJS base URL
         this.doctorates = response.data;
       } catch (err) {
@@ -210,7 +213,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-detailed-instructor"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-detailed-instructor",
         ); // Update with your NestJS base URL
         this.detailedInstructor = response.data;
       } catch (err) {
@@ -225,7 +229,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-detailed-programs"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-detailed-programs",
         ); // Update with your NestJS base URL
         this.detailedPrograms = response.data;
       } catch (err) {
@@ -240,7 +245,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-detailed-courses"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-detailed-courses",
         ); // Update with your NestJS base URL
         this.detailedCourses = response.data;
       } catch (err) {
@@ -255,7 +261,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-detailed-sections"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-detailed-sections",
         ); // Update with your NestJS base URL
         this.detailedSections = response.data;
       } catch (err) {
@@ -270,7 +277,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/class-schedules/get-detailed-all"
+          process.env.VUE_APP_API_BASE_URL +
+            "/class-schedules/get-detailed-all",
         ); // Update with your NestJS base URL
         this.detailedAll = response.data;
       } catch (err) {
@@ -285,7 +293,8 @@ export const useFetchDataStore = defineStore("fetchData", {
       this.error = null;
       try {
         const response = await axios.get(
-          "http://localhost:8000/semester-settings/get-semester-settings"
+          process.env.VUE_APP_API_BASE_URL +
+            "/semester-settings/get-semester-settings",
         ); // Update with your NestJS base URL
         this.semesterSettings = response.data;
       } catch (err) {

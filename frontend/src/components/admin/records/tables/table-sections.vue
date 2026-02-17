@@ -258,7 +258,7 @@ export default {
       return this.sections.filter((item) =>
         [item.section_set, item.section_session, item.projected?.project_level]
           .filter(Boolean) // skip null/undefined
-          .some((field) => field.toString().toLowerCase().includes(query))
+          .some((field) => field.toString().toLowerCase().includes(query)),
       );
     },
 
@@ -326,7 +326,9 @@ export default {
       const sectionId = this.recordToDelete.section_id;
 
       axios
-        .delete(`http://localhost:8000/sections/delete-id/${sectionId}`)
+        .delete(
+          `${process.env.VUE_APP_API_BASE_URL}/sections/delete-id/${sectionId}`,
+        )
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;

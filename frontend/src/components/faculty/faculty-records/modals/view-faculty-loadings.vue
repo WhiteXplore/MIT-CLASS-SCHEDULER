@@ -202,7 +202,7 @@ export default {
         (item) =>
           String(item.instructor?.employee_id) ===
             String(this.authenticatedEmployeeId) &&
-          item.course?.course_semester === this.selectedSemester
+          item.course?.course_semester === this.selectedSemester,
       );
     },
 
@@ -249,7 +249,7 @@ export default {
     totalUnits() {
       return this.filteredFacultyLoads.reduce(
         (sum, item) => sum + (Number(item.course?.course_units) || 0),
-        0
+        0,
       );
     },
   },
@@ -267,9 +267,12 @@ export default {
     },
     async fetchUser() {
       try {
-        const response = await axios.get("http://localhost:8000/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/auth/me",
+          {
+            withCredentials: true,
+          },
+        );
         if (response.data) {
           this.user = response.data;
           this.authenticatedEmployeeId = response.data.employee_id;

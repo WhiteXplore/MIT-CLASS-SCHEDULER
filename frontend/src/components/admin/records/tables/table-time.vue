@@ -246,7 +246,7 @@ export default {
 
       // Filter by formatted time string
       let filtered = this.time.filter((item) =>
-        this.formatTime(item.time).toLowerCase().includes(query)
+        this.formatTime(item.time).toLowerCase().includes(query),
       );
 
       // Sort by time
@@ -333,7 +333,7 @@ export default {
       const timeId = this.recordToDelete.time_id;
 
       axios
-        .delete(`http://localhost:8000/time/delete-id/${timeId}`)
+        .delete(`${process.env.VUE_APP_API_BASE_URL}/time/delete-id/${timeId}`)
         .then(() => {
           this.recordToDelete = null;
           this.showDeleteModal = false;
