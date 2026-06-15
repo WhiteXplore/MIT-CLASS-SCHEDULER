@@ -16,11 +16,7 @@
             <icon :name="'edit-students'" />
             <h1 class="font-bold tracking-wide text-lg">Edit Instructor</h1>
           </div>
-          <icon
-            :name="'circle-close3'"
-            @click="$emit('close')"
-            class="cursor-pointer"
-          />
+          <icon :name="'circle-close3'" @click="$emit('close')" class="cursor-pointer" />
         </div>
 
         <!-- Body -->
@@ -73,6 +69,18 @@
                   <option value="" disabled>Select Gender</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
+                </select>
+              </div>
+              <div class="w-full space-y-2">
+                <label for="is_active">Status:</label>
+
+                <select
+                  v-model="form.is_active"
+                  id="is_active"
+                  class="w-full border px-2 py-3 border-gray-600 rounded-md text-md text-gray-800"
+                >
+                  <option :value="true">Active</option>
+                  <option :value="false">Inactive</option>
                 </select>
               </div>
             </div>
@@ -151,9 +159,7 @@
                   <option value="Regular">Regular</option>
                   <option value="Part Time">Part Time</option>
                   <option value="Program Head">Program Head</option>
-                  <option value="Clinical Instructor">
-                    Clinical Instructor
-                  </option>
+                  <option value="Clinical Instructor">Clinical Instructor</option>
                 </select>
               </div>
               <div class="w-full space-y-2">
@@ -199,14 +205,14 @@
           <div class="tracking-wide flex justify-end gap-2 mt-4">
             <button
               type="button"
-              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
+              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md cursor-pointer"
               @click="$emit('close')"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
+              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md cursor-pointer"
             >
               Save Changes
             </button>
@@ -246,6 +252,7 @@ export default {
         masterprogram_id: 0,
         doctorateprogram_id: 0,
         employee_id: "",
+        is_active: true,
       },
     };
   },
@@ -274,31 +281,24 @@ export default {
       const payload = {
         ...this.form,
         bachelorprogram_id:
-          this.form.bachelorprogram_id === 0
-            ? null
-            : this.form.bachelorprogram_id,
+          this.form.bachelorprogram_id === 0 ? null : this.form.bachelorprogram_id,
         masterprogram_id:
           this.form.masterprogram_id === 0 ? null : this.form.masterprogram_id,
         doctorateprogram_id:
-          this.form.doctorateprogram_id === 0
-            ? null
-            : this.form.doctorateprogram_id,
+          this.form.doctorateprogram_id === 0 ? null : this.form.doctorateprogram_id,
       };
 
       try {
         await axios.patch(
           `${process.env.VUE_APP_API_BASE_URL}/instructors/update-instructor/${this.instructorData.instructor_id}`,
-          payload,
+          payload
         );
         toast.success("Instructor updated successfully!");
         new Audio(require("@/assets/add.mp3")).play();
         this.$emit("refresh");
         this.$emit("close");
       } catch (error) {
-        console.error(
-          "Error updating instructor:",
-          error.response?.data || error,
-        );
+        console.error("Error updating instructor:", error.response?.data || error);
         toast.error("Failed to update instructor.");
       }
     },
@@ -313,6 +313,7 @@ export default {
         masterprogram_id: this.instructorData.masterprogram_id ?? 0,
         doctorateprogram_id: this.instructorData.doctorateprogram_id ?? 0,
         employee_id: this.instructorData.employee_id || "",
+        is_active: this.instructorData.is_active ?? true,
       };
     },
   },

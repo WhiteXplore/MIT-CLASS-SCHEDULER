@@ -1,9 +1,8 @@
 <template>
   <div class="min-h-screen">
-    <div class="flex gap-3 w-full justify-between items-center">
-      <!-- Semester Filter Buttons -->
-      <!-- Modern Filter Controls -->
-      <div class="flex flex-wrap items-center gap-4">
+    <div class="flex gap-3 w-full justify-between items-center flex-wrap">
+      <!-- LEFT: Filters + Search -->
+      <div class="flex flex-wrap items-center gap-3">
         <!-- School Year Dropdown -->
         <div class="flex flex-col">
           <select
@@ -16,6 +15,7 @@
             </option>
           </select>
         </div>
+
         <!-- Semester Dropdown -->
         <div class="flex flex-col">
           <select
@@ -30,8 +30,22 @@
         </div>
       </div>
 
-      <div class="flex gap-1">
-        <!-- View Schedules Button -->
+      <!-- RIGHT: Action Buttons -->
+      <div class="flex gap-1 flex-wrap">
+        <!-- Schedule By Rooms -->
+        <div
+          @click="toggleRoomView"
+          class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:shadow-lg cursor-pointer transition duration-200"
+        >
+          <div
+            class="p-1 bg-white bg-opacity-20 rounded-full flex items-center justify-center"
+          >
+            <icon :name="'calendar1'" class="w-4 h-4" />
+          </div>
+          <span class="font-medium text-sm">Schedule by Rooms</span>
+        </div>
+
+        <!-- View Schedules -->
         <router-link
           to="/views"
           @click="toggleView"
@@ -45,7 +59,7 @@
           <span class="font-medium text-sm">View Schedules</span>
         </router-link>
 
-        <!-- Add Schedules Button -->
+        <!-- Add Schedule -->
         <div
           @click="toggleAdd"
           class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg cursor-pointer transition duration-200"
@@ -76,164 +90,305 @@
         {{ label }}
       </button>
     </div>
+    <template v-if="!isRoomView">
+      <!-- Instructor Cards -->
+      <div class="shrink-layout border border-gray-200 rounded-xl p-4 bg-gray-50">
+        <div class="w-full h-[115vh] overflow-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
+            <!-- Instructor Cards -->
+            <template v-if="Object.keys(groupedByInstructor).length > 0">
+              <div
+                v-for="(facultyLoads, instructorId) in filteredGroupedByInstructor"
+                :key="instructorId"
+                class="w-full border border-gray-300 shadow rounded-2xl bg-white p-2"
+              >
+                <!-- Instructor Info -->
+                <div class="text-center mb-4">
+                  <h2 class="text-lg font-bold text-gray-800">Teacher's Loads</h2>
+                  <p class="text-sm text-gray-700">
+                    {{ semesterName(facultyLoads) }} Semester/Term • SY
+                    {{ schoolYears(facultyLoads) }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-800 mt-1">
+                    {{
+                      `${facultyLoads[0].instructor.instructor_fname} ${
+                        facultyLoads[0].instructor.instructor_mname || ""
+                      } ${facultyLoads[0].instructor.instructor_lname}`
+                        .replace(/\s+/g, " ")
+                        .trim()
+                    }}
+                  </p>
+                </div>
 
-    <!-- Instructor Cards -->
-    <div class="shrink-layout border border-gray-200 rounded-xl p-4 bg-gray-50">
-      <div class="w-full h-[115vh] overflow-auto">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-          <!-- Instructor Cards -->
-          <template v-if="Object.keys(groupedByInstructor).length > 0">
+                <!-- Schedule Table -->
+                <div class="rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+                  <table class="min-w-full border-separate border-spacing-0 text-sm">
+                    <thead
+                      class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 top-0 z-10"
+                    >
+                      <tr>
+                        <th
+                          class="text-left px-4 py-3 bg-gray-100 font-semibold text-sm border sticky left-0 z-20"
+                        >
+                          TIME
+                        </th>
+                        <th
+                          v-for="day in days"
+                          :key="day"
+                          class="text-center px-4 py-2 border font-semibold text-sm"
+                        >
+                          {{ day }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="facultyLoads.length === 0">
+                        <td colspan="8" class="text-center text-gray-500 py-8">
+                          No schedule found.
+                        </td>
+                      </tr>
+
+                      <!-- Grouped Sections -->
+                      <template v-for="group in groupedTimeSlots" :key="group.label">
+                        <tr>
+                          <td
+                            colspan="8"
+                            class="bg-blue-50 text-gray-800 font-bold px-4 py-2"
+                          >
+                            {{ group.label }}
+                          </td>
+                        </tr>
+
+                        <tr
+                          v-for="time in group.slots"
+                          :key="time.start"
+                          class="hover:bg-gray-50 transition-all duration-150"
+                        >
+                          <!-- Time Range Column -->
+                          <td
+                            class="sticky left-0 z-10 bg-white w-32 text-sm text-gray-600 px-4 py-2 border whitespace-nowrap"
+                          >
+                            {{ to12Hr(time.start) }} - {{ to12Hr(time.end) }}
+                          </td>
+
+                          <!-- Schedule Cells -->
+                          <template
+                            v-for="grouped in groupSubjectsByDay(
+                              days,
+                              time.start,
+                              facultyLoads
+                            )"
+                            :key="grouped.day + time.start"
+                          >
+                            <td
+                              v-if="grouped.type === 'empty'"
+                              class="border h-[40px] px-1 z-0"
+                            ></td>
+                            <td
+                              v-else
+                              :colspan="grouped.colspan"
+                              class="relative border h-[40px] px-1 z-0"
+                            >
+                              <div
+                                class="absolute left-1 right-1 top-[2px] w-auto text-[11px] font-medium rounded-md shadow-md border border-gray-300 px-2 py-[6px] overflow-hidden transition-all duration-300"
+                                :style="{
+                                  height: getSpanningRows(grouped.sched) * 40 - 4 + 'px',
+                                  backgroundColor: getColor(grouped.day, time.start),
+                                  zIndex: 10,
+                                }"
+                              >
+                                <p
+                                  class="text-[13px] font-semibold text-gray-800 leading-snug break-words"
+                                >
+                                  {{ grouped.sched.project?.project_section || "N/A" }}
+                                  /
+                                  {{ grouped.sched.course?.course_code || "N/A" }}
+                                  / Room - (
+                                  {{ grouped.sched.room?.room_name || "N/A" }}
+                                  {{ grouped.sched.room?.room_number || "N/A" }} -
+                                  {{ grouped.sched.room?.room_type || "N/A" }})
+                                </p>
+                              </div>
+                            </td>
+                          </template>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </template>
+
+            <!-- No Schedules Message -->
             <div
-              v-for="(facultyLoads, instructorId) in groupedByInstructor"
-              :key="instructorId"
+              v-else
+              class="col-span-full text-center text-gray-600 py-12 bg-white rounded-xl shadow border border-gray-300"
+            >
+              <p class="text-lg font-semibold">No schedules available.</p>
+              <p class="text-sm text-gray-500">
+                Please add a schedule or adjust your filters.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div></template
+    >
+
+    <!-- ROOM VIEW -->
+
+    <!-- ROOM VIEW (Weekly Grid ) -->
+    <template v-if="isRoomView">
+      <div class="shrink-layout border border-gray-200 rounded-xl p-4 bg-gray-50">
+        <div class="w-full h-[115vh] overflow-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2">
+            <div
+              v-for="(roomLoads, roomName) in filteredGroupedByRoom"
+              :key="roomName"
               class="w-full border border-gray-300 shadow rounded-2xl bg-white p-2"
             >
-              <!-- Instructor Info -->
+              <!-- Room Header -->
               <div class="text-center mb-4">
-                <h2 class="text-lg font-bold text-gray-800">Teacher's Loads</h2>
-                <p class="text-sm text-gray-700">
-                  {{ semesterName(facultyLoads) }} Semester/Term • SY
-                  {{ schoolYears(facultyLoads) }}
-                </p>
-                <p class="text-sm font-medium text-gray-800 mt-1">
-                  {{
-                    `${facultyLoads[0].instructor.instructor_fname} ${
-                      facultyLoads[0].instructor.instructor_mname || ""
-                    } ${facultyLoads[0].instructor.instructor_lname}`
-                      .replace(/\s+/g, " ")
-                      .trim()
-                  }}
-                </p>
+                <h1 class="text-xl font-bold text-gray-800">Room: {{ roomName }}</h1>
+
+                <!-- <p class="text-base text-gray-500">
+                  {{ getUniqueProjectCount(roomLoads) }} schedule(s)
+                </p> -->
               </div>
 
-              <!-- Schedule Table -->
-              <div
-                class="rounded-xl border border-gray-200 shadow-sm overflow-x-auto"
-              >
-                <table
-                  class="min-w-full border-separate border-spacing-0 text-sm"
-                >
-                  <thead
-                    class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 top-0 z-10"
-                  >
+              <!-- WEEKLY GRID TABLE -->
+              <div class="rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+                <table class="min-w-full border-separate border-spacing-0 text-sm">
+                  <!-- HEADER -->
+                  <thead class="bg-gray-100 text-gray-700">
                     <tr>
                       <th
-                        class="text-left px-4 py-3 bg-gray-100 font-semibold text-sm border sticky left-0 z-20"
+                        class="px-3 py-3 border sticky left-0 bg-gray-100 text-sm w-[15%]"
                       >
                         TIME
                       </th>
                       <th
                         v-for="day in days"
                         :key="day"
-                        class="text-center px-4 py-2 border font-semibold text-sm"
+                        class="px-3 py-3 border text-center text-sm"
                       >
                         {{ day }}
                       </th>
                     </tr>
                   </thead>
+
+                  <!-- BODY -->
                   <tbody>
-                    <tr v-if="facultyLoads.length === 0">
-                      <td colspan="8" class="text-center text-gray-500 py-8">
-                        No schedule found.
-                      </td>
-                    </tr>
-
-                    <!-- Grouped Sections -->
-                    <template
-                      v-for="group in groupedTimeSlots"
-                      :key="group.label"
+                    <tr
+                      v-for="time in timeSlots"
+                      :key="time.start"
+                      class="hover:bg-gray-50 text-center"
                     >
-                      <tr>
-                        <td
-                          colspan="8"
-                          class="bg-blue-50 text-gray-800 font-bold px-4 py-2"
-                        >
-                          {{ group.label }}
-                        </td>
-                      </tr>
-
-                      <tr
-                        v-for="time in group.slots"
-                        :key="time.start"
-                        class="hover:bg-gray-50 transition-all duration-150"
+                      <!-- TIME COLUMN -->
+                      <td
+                        class="sticky left-0 bg-white border px-3 py-3 whitespace-nowrap text-sm text-gray-700"
                       >
-                        <!-- Time Range Column -->
-                        <td
-                          class="sticky left-0 z-10 bg-white w-32 text-xs text-gray-600 px-4 py-2 border whitespace-nowrap"
-                        >
-                          {{ to12Hr(time.start) }} - {{ to12Hr(time.end) }}
-                        </td>
+                        {{ to12Hr(time.start) }} - {{ to12Hr(time.end) }}
+                      </td>
 
-                        <!-- Schedule Cells -->
-                        <template
-                          v-for="grouped in groupSubjectsByDay(
-                            days,
-                            time.start,
-                            facultyLoads
-                          )"
-                          :key="grouped.day + time.start"
+                      <!-- DAYS -->
+                      <template
+                        v-for="grouped in groupSubjectsByDay(days, time.start, roomLoads)"
+                        :key="grouped.day + time.start"
+                      >
+                        <td v-if="grouped.type === 'empty'" class="border h-[45px]"></td>
+
+                        <td
+                          v-else
+                          :colspan="grouped.colspan"
+                          class="relative border h-[45px] text-left"
                         >
-                          <td
-                            v-if="grouped.type === 'empty'"
-                            class="border h-[40px] px-1 z-0"
-                          ></td>
-                          <td
-                            v-else
-                            :colspan="grouped.colspan"
-                            class="relative border h-[40px] px-1 z-0"
+                          <div
+                            class="absolute left-1 right-1 top-[2px] text-sm font-medium rounded-md border px-2 py-[6px] overflow-hidden"
+                            :style="{
+                              height: getSpanningRows(grouped.sched) * 45 - 4 + 'px',
+                              backgroundColor: getColor(grouped.day, time.start),
+                            }"
                           >
-                            <div
-                              class="absolute left-1 right-1 top-[2px] w-auto text-[11px] font-medium rounded-md shadow-md border border-gray-300 px-2 py-[6px] overflow-hidden transition-all duration-300"
-                              :style="{
-                                height:
-                                  getSpanningRows(grouped.sched) * 40 -
-                                  4 +
-                                  'px',
-                                backgroundColor: getColor(
-                                  grouped.day,
-                                  time.start
-                                ),
-                                zIndex: 10,
-                              }"
+                            <p
+                              class="text-sm font-semibold text-gray-800 flex items-center gap-2"
                             >
-                              <p
-                                class="text-[11px] font-semibold text-gray-800 leading-snug break-words"
+                              {{ grouped.sched.course?.course_code }} /
+                              {{ grouped.sched.project?.project_section }}
+
+                              <!-- 🚨 Conflict Badge -->
+                              <span
+                                v-if="grouped.sched.hasConflict"
+                                @click.stop="openConflictModal(grouped.sched, roomLoads)"
+                                class="text-[10px] px-2 py-1 rounded-full bg-red-500 text-white font-bold cursor-pointer hover:bg-red-600"
                               >
-                                {{
-                                  grouped.sched.project?.project_section ||
-                                  "N/A"
-                                }}
-                                /
-                                {{ grouped.sched.course?.course_code || "N/A" }}
-                                / Room - (
-                                {{ grouped.sched.room?.room_name || "N/A" }}
-                                {{ grouped.sched.room?.room_number || "N/A" }} -
-                                {{ grouped.sched.room?.room_type || "N/A" }})
-                              </p>
-                            </div>
-                          </td>
-                        </template>
-                      </tr>
-                    </template>
+                                CONFLICT
+                              </span>
+                            </p>
+
+                            <p class="text-xs text-gray-600">
+                              {{ grouped.sched.instructor?.instructor_fname }}
+                            </p>
+                          </div>
+                        </td>
+                      </template>
+                    </tr>
                   </tbody>
                 </table>
+                <!-- 🔥 CONFLICT MODAL -->
+                <div
+                  v-if="showConflictModal"
+                  class="fixed inset-0 flex items-center justify-center z-50"
+                >
+                  <div
+                    class="bg-white w-[600px] max-h-[80vh] overflow-auto rounded-2xl shadow-xl p-6"
+                  >
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-4">
+                      <h2 class="text-lg font-bold text-red-600">
+                        Schedule Conflict Detected
+                      </h2>
+                      <button
+                        @click="showConflictModal = false"
+                        class="text-gray-500 hover:text-gray-800"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <p class="text-sm text-gray-600 mb-4">
+                      Room: <strong>{{ selectedRoom }}</strong>
+                    </p>
+
+                    <!-- Conflict List -->
+                    <div class="space-y-3">
+                      <div
+                        v-for="(sched, index) in conflictSchedules"
+                        :key="index"
+                        class="border border-red-300 bg-red-50 rounded-lg p-3"
+                      >
+                        <p class="font-semibold text-gray-800">
+                          {{ sched.course?.course_code }} /
+                          {{ sched.project?.project_section }}
+                        </p>
+
+                        <p class="text-sm text-gray-600">
+                          {{ sched.instructor?.instructor_fname }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ getShortDay(sched.schedule_days) }} |
+                          {{ to12Hr(sched.time_start) }} - {{ to12Hr(sched.time_end) }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </template>
-
-          <!-- No Schedules Message -->
-          <div
-            v-else
-            class="col-span-full text-center text-gray-600 py-12 bg-white rounded-xl shadow border border-gray-300"
-          >
-            <p class="text-lg font-semibold">No schedules available.</p>
-            <p class="text-sm text-gray-500">
-              Please add a schedule or adjust your filters.
-            </p>
           </div>
         </div>
       </div>
-    </div>
+    </template>
 
     <!-- Modals -->
     <AddClassSchedules
@@ -273,10 +428,76 @@ export default {
         2: "2nd Sem",
         3: "Summer",
       },
+
+      isRoomView: false,
+      showConflictModal: false,
+      conflictSchedules: [],
+      selectedRoom: null,
+      roomSearch: "",
+      instructorSearch: "",
     };
   },
   computed: {
     ...mapState(useFetchDataStore, ["schedulers"]),
+    filteredGroupedByInstructor() {
+      const search = this.instructorSearch.toLowerCase().trim();
+
+      if (!search) return this.groupedByInstructor;
+
+      const result = {};
+
+      for (const [id, loads] of Object.entries(this.groupedByInstructor)) {
+        const instructor = loads[0]?.instructor;
+
+        const fullName = `${instructor?.instructor_fname || ""} ${
+          instructor?.instructor_mname || ""
+        } ${instructor?.instructor_lname || ""}`
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .trim();
+
+        const matchName = fullName.includes(search);
+
+        const matchSchedule = loads.some((sched) => {
+          return (
+            sched.course?.course_code?.toLowerCase().includes(search) ||
+            sched.project?.project_section?.toLowerCase().includes(search) ||
+            sched.room?.room_name?.toLowerCase().includes(search)
+          );
+        });
+
+        if (matchName || matchSchedule) {
+          result[id] = loads;
+        }
+      }
+
+      return result;
+    },
+    filteredGroupedByRoom() {
+      const search = this.roomSearch.toLowerCase().trim();
+
+      if (!search) return this.groupedByRoom;
+
+      const result = {};
+
+      for (const [roomName, roomLoads] of Object.entries(this.groupedByRoom)) {
+        const fullRoom = `${roomName}`.toLowerCase().replace(/\s+/g, "");
+        const matchRoomName = fullRoom.includes(search.replace(/\s+/g, ""));
+        const matchSchedule = roomLoads.some((sched) => {
+          return (
+            sched.course?.course_code?.toLowerCase().includes(search) ||
+            sched.project?.project_section?.toLowerCase().includes(search) ||
+            sched.instructor?.instructor_fname?.toLowerCase().includes(search)
+          );
+        });
+
+        if (matchRoomName || matchSchedule) {
+          result[roomName] = roomLoads;
+        }
+      }
+
+      return result;
+    },
     schoolYearOptions() {
       const years = new Set();
 
@@ -284,9 +505,7 @@ export default {
         const curriculum = sched.course?.curriculum;
         if (curriculum) {
           const since = curriculum.curriculum_since?.toString().slice(0, 4);
-          const effective = curriculum.curriculum_effective
-            ?.toString()
-            .slice(0, 4);
+          const effective = curriculum.curriculum_effective?.toString().slice(0, 4);
           if (since && effective) {
             years.add(`${since} - ${effective}`);
           }
@@ -335,8 +554,7 @@ export default {
         {
           label: "Afternoon",
           slots: this.timeSlots.filter(
-            (t) =>
-              this.to24Hr(t.start) >= "12:00" && this.to24Hr(t.start) < "17:00"
+            (t) => this.to24Hr(t.start) >= "12:00" && this.to24Hr(t.start) < "17:00"
           ),
         },
         {
@@ -380,8 +598,128 @@ export default {
 
       return result;
     },
+    groupedByRoom() {
+      const result = {};
+
+      for (const sched of this.schedulers) {
+        if (
+          this.selectedSemester !== null &&
+          sched.course?.course_semester !== this.selectedSemester
+        )
+          continue;
+
+        const curriculum = sched.course?.curriculum;
+        const yearRange = curriculum
+          ? `${curriculum.curriculum_since} - ${curriculum.curriculum_effective}`
+          : null;
+
+        if (this.selectedSchoolYear && yearRange !== this.selectedSchoolYear) {
+          continue;
+        }
+
+        const roomName = sched?.room
+          ? `${sched.room.room_name}-${sched.room.room_number}`
+          : "No Room";
+
+        if (!result[roomName]) result[roomName] = [];
+
+        // default conflict flag
+        sched.hasConflict = false;
+
+        result[roomName].push(sched);
+      }
+
+      // 🔥 Detect conflicts per room AFTER grouping
+      for (const roomName in result) {
+        const list = result[roomName];
+
+        for (let i = 0; i < list.length; i++) {
+          for (let j = i + 1; j < list.length; j++) {
+            const a = list[i];
+            const b = list[j];
+
+            // same day check
+            const sameDay =
+              this.getShortDay(a.schedule_days) === this.getShortDay(b.schedule_days);
+
+            if (!sameDay) continue;
+
+            const overlap = this.checkTimeOverlap(
+              a.time_start,
+              a.time_end,
+              b.time_start,
+              b.time_end
+            );
+
+            if (overlap) {
+              a.hasConflict = true;
+              b.hasConflict = true;
+            }
+          }
+        }
+      }
+
+      return result;
+    },
   },
   methods: {
+    // getUniqueProjectCount(roomLoads) {
+    //   if (!roomLoads || roomLoads.length === 0) return 0;
+
+    //   const unique = new Set();
+
+    //   roomLoads.forEach((sched) => {
+    //     const projectId = sched?.project?.project_id;
+
+    //     if (projectId) {
+    //       unique.add(projectId);
+    //     }
+    //   });
+
+    //   return unique.size;
+    // },
+    openConflictModal(clickedSched, roomLoads) {
+      const conflicts = [];
+
+      for (const sched of roomLoads) {
+        if (sched === clickedSched) continue;
+
+        const sameDay =
+          this.getShortDay(sched.schedule_days) ===
+          this.getShortDay(clickedSched.schedule_days);
+
+        if (!sameDay) continue;
+
+        const overlap = this.checkTimeOverlap(
+          sched.time_start,
+          sched.time_end,
+          clickedSched.time_start,
+          clickedSched.time_end
+        );
+
+        if (overlap) {
+          conflicts.push(sched);
+        }
+      }
+
+      // include the clicked schedule itself
+      this.conflictSchedules = [clickedSched, ...conflicts];
+      this.selectedRoom = clickedSched.room?.room_name;
+      this.showConflictModal = true;
+    },
+    checkTimeOverlap(aStart, aEnd, bStart, bEnd) {
+      const aS = this.toMinutes(this.normalizeTime(aStart));
+      const aE = this.toMinutes(this.normalizeTime(aEnd));
+      const bS = this.toMinutes(this.normalizeTime(bStart));
+      const bE = this.toMinutes(this.normalizeTime(bEnd));
+
+      return aS < bE && bS < aE; // overlap condition
+    },
+    toggleRoomView() {
+      this.isRoomView = !this.isRoomView;
+      this.isAdd = false;
+      this.isViewAll = false;
+    },
     loadSchedulers() {
       const store = useFetchDataStore();
       store.fetchSchedulers();
@@ -473,11 +811,7 @@ export default {
           let colspan = 1;
           for (let j = i + 1; j < dayList.length; j++) {
             const nextDay = dayList[j];
-            const nextSched = this.getScheduleFromList(
-              facultyLoads,
-              nextDay,
-              time
-            );
+            const nextSched = this.getScheduleFromList(facultyLoads, nextDay, time);
 
             const isSame =
               nextSched &&
@@ -485,8 +819,7 @@ export default {
               nextSched.time_start === sched.time_start &&
               nextSched.time_end === sched.time_end &&
               nextSched.course?.course_code === sched.course?.course_code &&
-              nextSched.project?.project_section ===
-                sched.project?.project_section &&
+              nextSched.project?.project_section === sched.project?.project_section &&
               nextSched.room?.room_name === sched.room?.room_name &&
               nextSched.room?.room_number === sched.room?.room_number;
 

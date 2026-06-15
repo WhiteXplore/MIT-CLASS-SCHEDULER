@@ -6,7 +6,7 @@
       <form
         @submit.prevent="submitData"
         class="w-auto bg-white text-[13px] rounded-[15px] shadow-lg"
-        ref="programsForm"
+        ref="sectionForm"
       >
         <!-- Header -->
         <div
@@ -14,7 +14,7 @@
         >
           <div class="flex gap-1 items-center">
             <icon :name="'add-students'" />
-            <h1 class="font-bold tracking-wide text-lg">Add Programs</h1>
+            <h1 class="font-bold tracking-wide text-lg">Add Sections</h1>
           </div>
           <icon
             :name="'circle-close3'"
@@ -22,38 +22,49 @@
             class="cursor-pointer"
           />
         </div>
-        <div class="p-5 w-[30vw] space-y-3">
-          <div class="w-full space-y-2 text-left flex flex-col">
-            <label for="program_name" class="font-bold">Program Name:</label>
-            <input
-              v-model="form.program_name"
-              type="text"
-              id="program_name"
+        <div class="p-5 w-[20vw] space-y-3">
+          <!-- <div class="w-full space-y-2 text-left flex flex-col">
+            <label for="project_id" class="font-bold">Projected:</label>
+            <select
+              v-model="form.project_id"
+              id="project_id"
               required
-              class="w-full border px-3 py-3 border-gray-600 rounded-md text-md text-gray-800"
-              placeholder="Enter program name"
-            />
-          </div>
-          <div class="w-full space-y-2 text-left flex flex-col">
-            <label for="program_code" class="font-bold">Program Code:</label>
-            <input
-              v-model="form.program_code"
-              type="text"
-              id="program_code"
+              class="w-full border px-2 py-3 border-gray-600 rounded-md text-md text-gray-800"
+            >
+              <option value="" disabled>Select project</option>
+              <option
+                v-for="project in projects"
+                :key="project.project_id"
+                :value="project.project_id"
+              >
+                {{ project.project_level }}
+              </option>
+            </select>
+          </div> -->
+          <!-- <div class="w-full space-y-2 text-left flex flex-col">
+            <label for="section_session" class="font-bold">Session:</label>
+            <select
+              v-model="form.section_session"
+              id="section_session"
               required
-              class="w-full border px-3 py-3 border-gray-600 rounded-md text-md text-gray-800"
-              placeholder="Enter program"
-            />
-          </div>
+              class="w-full border px-2 py-3 border-gray-600 rounded-md text-md text-gray-800"
+            >
+              <option value="" disabled>Select session</option>
+              <option value="Morning">Morning</option>
+              <option value="Afternon">Afternon</option>
+              <option value="Evening">Evening</option>
+            </select>
+          </div> -->
 
           <div class="w-full space-y-2 text-left flex flex-col">
-            <label for="program_major" class="font-bold">Program Major:</label>
+            <label for="section_set" class="font-bold">Set:</label>
             <input
-              v-model="form.program_major"
+              v-model="form.section_set"
               type="text"
-              id="program_major"
+              id="section_set"
+              required
               class="w-full border px-3 py-3 border-gray-600 rounded-md text-md text-gray-800"
-              placeholder="Enter program major"
+              placeholder="Enter set"
             />
           </div>
 
@@ -85,52 +96,55 @@
 import icon from "@/assets/icon.vue";
 import { toast } from "vue3-toastify";
 import axios from "axios";
+import { useFetchDataStore } from "@/store/fetch-data-store"; // Adjust path if needed
+import { mapState, mapActions } from "pinia";
 export default {
-  name: "AddProgramsPage",
+  name: "AddSectionsPage",
   components: {
     icon,
   },
   data() {
     return {
       form: {
-        program_name: "",
-        program_code: "",
-        program_major: "",
+        // project_id: "",
+        // section_session: "",
+        section_set: "",
       },
     };
   },
+  computed: {
+    ...mapState(useFetchDataStore, ["projects"]),
+  },
   methods: {
+    ...mapActions(useFetchDataStore, ["fetchProjects"]),
     async submitData() {
-      const form = this.$refs.programsForm;
+      const form = this.$refs.sectionForm;
       if (!form.checkValidity()) {
         form.reportValidity(); // triggers browser validation messages
         return;
       }
 
-      // Set program_major to 'N/A' if empty
-      if (!this.form.program_major || this.form.program_major.trim() === "") {
-        this.form.program_major = "-";
-      }
-
       try {
         const response = await axios.post(
-          process.env.VUE_APP_API_BASE_URL + "/programs/add-programs",
+          process.env.VUE_APP_API_BASE_URL + "/sections/add-sections",
           this.form,
         );
         console.log(response.data);
         console.log("Submitting form:", this.form);
-        toast.success("Programs added successfully!");
-
-        // Play sound after successful add
+        toast.success("Section added successfully!");
+        // Play sound after successful delete
         const audio = new Audio(require("@/assets/add.mp3"));
         audio.play();
 
         this.$emit("refresh");
         this.$emit("close");
       } catch (error) {
-        toast.error("Failed to add program.");
+        toast.error("Failed to add section.");
       }
     },
+  },
+  mounted() {
+    this.fetchProjects();
   },
 };
 </script>

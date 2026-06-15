@@ -169,6 +169,13 @@ const routes = [
           ),
         meta: { requiresAuth: true, role: "Admin" },
       },
+        {
+        path: "/user-accounts",
+        name: "user-accounts",
+        component: () => import("@/components/admin/records/user-accounts.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
       // {
       //   path: "/view-program",
       //   name: "views-program",

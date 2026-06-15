@@ -6,7 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { InstructorsService } from './instructors.service';
 import { CreateInstructorDto } from './dto/create-instructor.dto';
 import { UpdateInstructorDto } from './dto/update-instructor.dto';
@@ -41,5 +45,19 @@ export class InstructorsController {
   @Delete('delete-id/:id')
   remove(@Param('id') id: string) {
     return this.instructorsService.remove(+id);
+  }
+
+  // =========================
+  // UPLOAD EXCEL
+  // =========================
+
+  @Post('upload-excel')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadExcel(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    return this.instructorsService.uploadExcel(file);
   }
 }

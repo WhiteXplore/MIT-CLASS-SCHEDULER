@@ -16,11 +16,7 @@
             <icon :name="'add-students'" />
             <h1 class="font-bold tracking-wide text-lg">Add Projects</h1>
           </div>
-          <icon
-            :name="'circle-close3'"
-            @click="$emit('close')"
-            class="cursor-pointer"
-          />
+          <icon :name="'circle-close3'" @click="$emit('close')" class="cursor-pointer" />
         </div>
 
         <div class="p-5 w-[30vw] space-y-3">
@@ -38,10 +34,8 @@
                 :key="curriculum.curriculum_id"
                 :value="curriculum.curriculum_id"
               >
-                {{ curriculum.curriculum_name }} - ({{
-                  curriculum.curriculum_since
-                }}
-                - {{ curriculum.curriculum_effective }})
+                {{ curriculum.curriculum_name }} - ({{ curriculum.curriculum_since }} -
+                {{ curriculum.curriculum_effective }})
               </option>
             </select>
           </div>
@@ -76,7 +70,7 @@
                 :key="course.course_id"
                 :value="course.course_id"
               >
-                {{ course.course_offer_code }}
+                {{ course.course_offer_code }} - {{ course.course_code }}
               </option>
             </select>
           </div>
@@ -131,7 +125,7 @@
                   :class="{
                     'opacity-50 cursor-not-allowed': isAssigned(
                       form.course_id,
-                      section.section_id,
+                      section.section_id
                     ),
                   }"
                 >
@@ -153,14 +147,14 @@
           <!-- Buttons -->
           <div class="tracking-wide flex justify-end gap-2 mt-4">
             <button
-              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
+              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md cursor-pointer"
               type="button"
               @click="$emit('close')"
             >
               Cancel
             </button>
             <button
-              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
+              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md cursor-pointer"
               type="submit"
             >
               Submit
@@ -195,18 +189,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(useFetchDataStore, [
-      "curriculums",
-      "courses",
-      "sections",
-      "projects",
-    ]),
+    ...mapState(useFetchDataStore, ["curriculums", "courses", "sections", "projects"]),
     filteredCourses() {
       if (!this.form.curriculum_id || !this.form.project_level) return [];
       return this.courses.filter(
         (course) =>
           course.curriculum_id === this.form.curriculum_id &&
-          String(course.course_level) === String(this.form.project_level),
+          String(course.course_level) === String(this.form.project_level)
       );
     },
   },
@@ -222,26 +211,27 @@ export default {
       "fetchProjects",
     ]),
     updateProjectSection() {
-      const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id,
-      );
-      const section = this.sections.find(
-        (s) => s.section_id === this.form.section_id,
-      );
+      const course = this.courses.find((c) => c.course_id === this.form.course_id);
+      const section = this.sections.find((s) => s.section_id === this.form.section_id);
 
       this.form.project_section =
-        course && section
-          ? `${course.course_offer_code} - ${section.section_set}`
-          : "";
+        course && section ? `${course.course_offer_code} - ${section.section_set}` : "";
     },
     isAssigned(courseId, sectionId) {
       if (!courseId || !sectionId) return false;
-      return this.projects.some(
-        (p) =>
-          p.course_id === courseId &&
-          p.section_id === sectionId &&
-          String(p.project_level) === String(this.form.project_level),
-      );
+
+      const selectedCourse = this.courses.find((c) => c.course_id === courseId);
+
+      if (!selectedCourse) return false;
+
+      return this.projects.some((p) => {
+        const projectCourse = this.courses.find((c) => c.course_id === p.course_id);
+
+        return (
+          projectCourse?.course_offer_code === selectedCourse.course_offer_code &&
+          p.section_id === sectionId
+        );
+      });
     },
     async submitData() {
       if (this.isAssigned(this.form.course_id, this.form.section_id)) {
@@ -251,7 +241,7 @@ export default {
       try {
         await axios.post(
           process.env.VUE_APP_API_BASE_URL + "/projected/add-projected",
-          this.form,
+          this.form
         );
         toast.success("Project added successfully!");
         new Audio(require("@/assets/add.mp3")).play();

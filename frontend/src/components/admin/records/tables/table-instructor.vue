@@ -4,16 +4,32 @@
       <div class="text-[13px] text-text mt-4 font-regular">
         Pages / Instructor Information
       </div>
-      <div
-        @click="toggleAdd"
-        class="flex items-center gap-2 px-2.5 py-1.5 border text-green-600 border-green-600 rounded-xl over:bg-green-700 hover:shadow-lg cursor-pointer transition duration-200"
-      >
+      <div class="flex gap-2">
+        <!-- Add Instructor -->
         <div
-          class="p-1 bg-green-600 bg-opacity-20 rounded-full flex items-center justify-center"
+          @click="toggleAdd"
+          class="flex items-center gap-2 px-2.5 py-1.5 border text-green-600 border-green-600 rounded-xl hover:bg-green-50 hover:shadow-lg cursor-pointer transition duration-200"
         >
-          <icon :name="'add-account1.1'" class="w-4 h-4" />
+          <div
+            class="p-1 bg-green-600 bg-opacity-20 rounded-full flex items-center justify-center"
+          >
+            <icon :name="'add-account1.1'" class="w-4 h-4" />
+          </div>
+          <span class="font-medium text-sm">Add Instructor</span>
         </div>
-        <span class="font-medium text-sm">Add Instructor</span>
+
+        <!-- Upload Excel -->
+        <div
+          @click="toggleUpload"
+          class="flex items-center gap-2 px-2.5 py-1.5 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-lg cursor-pointer transition duration-200"
+        >
+          <div
+            class="p-1 bg-blue-600 bg-opacity-20 rounded-full flex items-center justify-center"
+          >
+            <icon name="upload" class="w-4 h-4" />
+          </div>
+          <span class="font-medium text-sm">Upload Excel</span>
+        </div>
       </div>
     </div>
 
@@ -55,25 +71,20 @@
           >
             <!-- Table -->
             <div class="w-full rounded-xl shadow-md overflow-hidden">
-              <div
-                class="overflow-y-auto max-h-[63vh] transition-all duration-300"
-              >
+              <div class="overflow-y-auto max-h-[63vh] transition-all duration-300">
                 <table
                   class="min-w-full table-auto border-separate border-spacing-y-2 text-sm text-gray-700"
                 >
-                  <thead
-                    class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide"
-                  >
+                  <thead class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide">
                     <tr>
                       <th
-                        class="px-4 py-3 w-10 text-left rounded-tl-lg font-normal"
+                        class="px-4 py-3 w-10 text-left rounded-tl-lg font-normal w-[10%]"
                       >
                         ID
                       </th>
                       <th class="px-4 py-3 text-left font-normal">Full Name</th>
-                      <th class="px-4 py-3 text-left font-normal">
-                        Job Status
-                      </th>
+                      <th class="px-4 py-3 text-left font-normal">Job Status</th>
+                      <th class="px-4 py-3 text-left font-normal">Status</th>
                       <th class="px-4 py-3 text-left rounded-tr-lg font-normal">
                         Actions
                       </th>
@@ -81,29 +92,91 @@
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(instructor_data, index) in paginatedData"
+                      v-for="instructor_data in paginatedData"
                       :key="instructor_data.instructor_id"
-                      class="bg-white hover:bg-blue-50 transition-all border border-gray-200 rounded-md shadow-sm"
+                      class="bg-white hover:bg-slate-50 transition-all duration-200 border border-slate-200 rounded-2xl"
                     >
-                      <td class="px-4 py-2 text-left">
-                        {{ startIndex + index }}
+                      <!-- ID -->
+                      <td class="px-4 py-3 text-left text-slate-600 font-medium">
+                        {{ instructor_data.employee_id || "N/A" }}
                       </td>
-                      <td class="px-4 py-2 text-left">
-                        {{ instructor_data.instructor_fname }}
-                        {{ instructor_data.instructor_mname }}
-                        {{ instructor_data.instructor_lname }}
+
+                      <!-- Full Name -->
+                      <td class="px-4 py-3 text-left">
+                        <div class="flex items-center gap-3">
+                          <!-- Avatar -->
+                          <!-- <div
+                            class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-semibold"
+                          >
+                            {{ instructor_data.instructor_fname?.charAt(0) }}
+                          </div> -->
+
+                          <div>
+                            <h1
+                              class="text-[14px] font-semibold text-slate-800 leading-none"
+                            >
+                              {{ instructor_data.instructor_fname }}
+                              {{ instructor_data.instructor_lname }}
+                            </h1>
+
+                            <!-- <p class="text-xs text-slate-400 mt-1">
+                              {{ instructor_data.employee_id || "No Employee ID" }}
+                            </p> -->
+                          </div>
+                        </div>
                       </td>
-                      <td class="px-4 py-2 text-left">
-                        {{ instructor_data.instructor_jobtype }}
+
+                      <!-- Job Type -->
+                      <td class="px-4 py-3 text-left">
+                        <span
+                          class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium"
+                        >
+                          {{ instructor_data.instructor_jobtype }}
+                        </span>
                       </td>
-                      <td class="px-4 py-2 text-left">
-                        <div class="flex gap-2">
+
+                      <!-- Active Status -->
+                      <td class="px-4 py-3 text-left">
+                        <span
+                          class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium"
+                          :class="
+                            instructor_data.is_active
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-red-50 text-red-700'
+                          "
+                        >
+                          <span
+                            class="w-2 h-2 rounded-full"
+                            :class="
+                              instructor_data.is_active ? 'bg-emerald-500' : 'bg-red-500'
+                            "
+                          ></span>
+
+                          {{ instructor_data.is_active ? "Active" : "Inactive" }}
+                        </span>
+                      </td>
+
+                      <!-- Actions -->
+                      <td class="px-4 py-3 text-left">
+                        <div class="flex items-center gap-2">
+                          <!-- View -->
+                          <button
+                            class="px-3 py-1 h-8 border border-gray-300 hover:bg-gray-200 text-gray-800 rounded-lg flex items-center gap-1"
+                            @click="toggleView(instructor_data)"
+                          >
+                            <icon name="eye" />
+                            View
+                          </button>
+
+                          <!-- Edit -->
                           <button
                             class="px-3 py-1 h-8 border border-blue-300 hover:bg-blue-200 text-blue-800 rounded-lg flex items-center gap-1"
                             @click="toggleEdit(instructor_data)"
                           >
                             <icon name="edit" /> Edit
                           </button>
+
+                          <!-- Delete -->
                           <button
                             class="px-3 py-1 h-8 border border-red-300 hover:bg-red-200 text-red-800 rounded-lg flex items-center gap-1"
                             @click="toggleDelete(instructor_data)"
@@ -166,11 +239,7 @@
     </div>
   </div>
 
-  <AddInstructor
-    v-if="isAddFacultyLoad"
-    @close="closeView"
-    @refresh="loadInstructors"
-  />
+  <AddInstructor v-if="isAddFacultyLoad" @close="closeView" @refresh="loadInstructors" />
   <EditInstructor
     v-if="showEditModal && selectedInstructor"
     :instructorData="selectedInstructor"
@@ -196,9 +265,7 @@
       />
     </div>
 
-    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
-      Delete Confirmation
-    </h1>
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">Delete Confirmation</h1>
     <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
       Are you sure you want to delete this record? This action cannot be undone.
     </p>
@@ -220,12 +287,162 @@
       </button>
     </div>
   </div>
+
+  <UploadInstructorExcel
+    v-if="isUploadData"
+    @close="closeView"
+    @refresh="loadInstructors"
+  />
+  <!-- View Instructor Modal -->
+  <!-- PREMIUM VIEW MODAL -->
+  <!-- PREMIUM MODERN VIEW MODAL -->
+  <!-- MODERN MINIMAL VIEW MODAL -->
+  <div
+    v-if="showViewModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-2.5"
+  >
+    <div
+      class="w-full max-w-2xl bg-white rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] overflow-hidden"
+    >
+      <!-- Header -->
+      <div class="p-4 px-6 border-b border-slate-100">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-4">
+            <!-- Avatar -->
+            <div
+              class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-lg font-semibold"
+            >
+              {{ selectedInstructor.instructor_fname?.charAt(0) }}
+            </div>
+
+            <!-- Name -->
+            <div>
+              <h1 class="text-[24px] font-semibold text-slate-900 leading-tight">
+                {{ selectedInstructor.instructor_fname }}
+                {{ selectedInstructor.instructor_lname }}
+              </h1>
+
+              <div class="flex items-center gap-2 mt-2">
+                <!-- Job Type -->
+                <span
+                  class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium"
+                >
+                  {{ selectedInstructor.instructor_jobtype }}
+                </span>
+
+                <!-- Status -->
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-medium"
+                  :class="
+                    selectedInstructor.is_active
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-red-50 text-red-700'
+                  "
+                >
+                  {{ selectedInstructor.is_active ? "Active" : "Inactive" }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Close -->
+          <button
+            @click="closeViewModal"
+            class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-500 transition-all"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Employee ID -->
+          <div class="space-y-1">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Employee ID
+            </p>
+
+            <h2 class="text-[15px] font-medium text-slate-800">
+              {{ selectedInstructor.employee_id || "N/A" }}
+            </h2>
+          </div>
+
+          <!-- Gender -->
+          <div class="space-y-1">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Gender
+            </p>
+
+            <h2 class="text-[15px] font-medium text-slate-800">
+              {{ selectedInstructor.instructor_gender || "N/A" }}
+            </h2>
+          </div>
+
+          <!-- Bachelor -->
+          <div class="space-y-1">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Bachelor Program
+            </p>
+
+            <h2 class="text-[15px] font-medium text-slate-800">
+              {{ selectedInstructor.bachelor?.bachelor_category || "Not Assigned" }}
+            </h2>
+          </div>
+
+          <!-- Master -->
+          <div class="space-y-1">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Master Program
+            </p>
+
+            <h2 class="text-[15px] font-medium text-slate-800">
+              {{ selectedInstructor.master?.master_category || "Not Assigned" }}
+            </h2>
+          </div>
+
+          <!-- Doctorate -->
+          <div class="space-y-1 md:col-span-2">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Doctorate Program
+            </p>
+
+            <h2 class="text-[15px] font-medium text-slate-800">
+              {{ selectedInstructor.doctorate?.doctorate_category || "Not Assigned" }}
+            </h2>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="flex items-center justify-between mt-10 pt-5 border-t border-slate-100"
+        >
+          <div>
+            <p class="text-xs uppercase tracking-wider text-slate-400">Created</p>
+
+            <p class="text-sm text-slate-600 mt-1">
+              {{ new Date(selectedInstructor.created_at).toLocaleDateString() }}
+            </p>
+          </div>
+
+          <button
+            @click="closeViewModal"
+            class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-medium transition-all"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import icon from "@/assets/icon.vue";
 import AddInstructor from "../modals/add-instructor.vue";
 import EditInstructor from "../modals/edit-instructor.vue";
+import UploadInstructorExcel from "../modals/upload-instructor.vue";
 import { toast } from "vue3-toastify";
 import { useFetchDataStore } from "../../../../store/fetch-data-store";
 import { mapState } from "pinia";
@@ -236,6 +453,7 @@ export default {
   components: {
     AddInstructor,
     EditInstructor,
+    UploadInstructorExcel,
     icon,
   },
   data() {
@@ -251,6 +469,8 @@ export default {
       recordToDelete: null,
       selectedInstructor: null, // 🔁 Renamed for clarity
       showEditModal: false, // ✅ Needed to show/hide modal
+      isUploadData: false,
+      showViewModal: false,
     };
   },
   computed: {
@@ -261,7 +481,7 @@ export default {
       return this.instructors.filter((item) =>
         `${item.instructor_fname} ${item.instructor_mname} ${item.instructor_lname}`
           .toLowerCase()
-          .includes(query),
+          .includes(query)
       );
     },
     totalPages() {
@@ -298,6 +518,17 @@ export default {
     },
   },
   methods: {
+    toggleView(item) {
+      this.selectedInstructor = item;
+      this.showViewModal = true;
+    },
+
+    closeViewModal() {
+      this.showViewModal = false;
+    },
+    toggleUpload() {
+      this.isUploadData = true;
+    },
     async loadInstructors() {
       const store = useFetchDataStore();
       await store.fetchInstructors();
@@ -319,7 +550,7 @@ export default {
       if (!this.recordToDelete) return;
       try {
         await axios.delete(
-          `${process.env.VUE_APP_API_BASE_URL}/instructors/delete-id/${this.recordToDelete.instructor_id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/instructors/delete-id/${this.recordToDelete.instructor_id}`
         );
 
         // Play sound after successful delete

@@ -34,16 +34,12 @@
           <table
             class="min-w-full table-auto border-separate border-spacing-y-2 text-sm text-gray-700"
           >
-            <thead
-              class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide"
-            >
+            <thead class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide">
               <tr>
                 <th class="px-4 py-3 text-left rounded-tl-xl font-normal">#</th>
                 <th class="px-4 py-3 text-left font-normal">Curriculum Name</th>
                 <th class="px-4 py-3 text-left font-normal">Course Code</th>
-                <th class="px-4 py-3 text-left font-normal">
-                  Course Description
-                </th>
+                <th class="px-4 py-3 text-left font-normal">Course Description</th>
                 <th class="px-4 py-3 text-left font-normal">Semester</th>
                 <th class="px-4 py-3 text-left font-normal">Level</th>
                 <th class="px-4 py-3 text-left font-normal">Lecture</th>
@@ -51,9 +47,7 @@
                 <th class="px-4 py-3 text-left font-normal">Requisite</th>
                 <th class="px-4 py-3 text-left font-normal">Day</th>
                 <th class="px-4 py-3 text-left font-normal">Time</th>
-                <th class="px-4 py-3 text-left rounded-tr-xl font-normal">
-                  Status
-                </th>
+                <th class="px-4 py-3 text-left rounded-tr-xl font-normal">Status</th>
               </tr>
             </thead>
 

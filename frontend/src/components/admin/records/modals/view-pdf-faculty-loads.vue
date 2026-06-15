@@ -3,7 +3,7 @@
     <!-- Download Button -->
     <div class="flex justify-end p-2 print:hidden">
       <button
-        @click="downloadPDF"
+        @click="openPreview"
         class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg transition duration-200"
       >
         <div
@@ -48,13 +48,9 @@
         </div>
 
         <!-- Schedule Table -->
-        <div
-          class="mt-4 rounded-xl border border-gray-200 shadow-sm overflow-x-auto"
-        >
+        <div class="mt-4 rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
           <table class="min-w-full border-collapse text-sm">
-            <thead
-              class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800"
-            >
+            <thead class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800">
               <tr>
                 <th
                   colspan="2"
@@ -117,16 +113,13 @@
                         <div
                           class="absolute inset-x-1 top-[2px] text-[11px] font-medium rounded-md shadow-md border border-gray-300 px-2 py-[6px] overflow-hidden transition-all duration-300"
                           :style="{
-                            height:
-                              getSpanningRows(grouped.sched) * 40 - 4 + 'px',
+                            height: getSpanningRows(grouped.sched) * 40 - 4 + 'px',
                             backgroundColor: getColor(grouped.day, slot.start),
                             zIndex: 10,
                           }"
                         >
                           <p class="font-semibold text-gray-800 leading-snug">
-                            {{
-                              grouped.sched.project?.project_section || "N/A"
-                            }}
+                            {{ grouped.sched.project?.project_section || "N/A" }}
                             /
                             {{ grouped.sched.course?.course_code || "N/A" }}
                           </p>
@@ -171,6 +164,37 @@
         </div>
       </div>
     </div>
+    <!-- Preview Modal -->
+    <div
+      v-if="showPreviewModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white w-[90%] h-[90%] rounded-xl shadow-xl flex flex-col">
+        <!-- Header -->
+        <div class="flex justify-between items-center p-3 border-b">
+          <h2 class="font-semibold text-gray-700">PDF Preview</h2>
+
+          <div class="flex gap-2">
+            <button
+              @click="openPreview"
+              class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg transition duration-200"
+            >
+              <span class="font-medium text-sm">Download</span>
+            </button>
+
+            <button
+              @click="showPreviewModal = false"
+              class="flex items-center gap-2 px-4 py-2 border text-gray-600 border-gray-600 rounded-xl hover:bg-gray-700 hover:text-white hover:shadow-lg transition duration-200"
+            >
+              <span class="font-medium text-sm">Close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PDF Preview -->
+        <iframe v-if="pdfPreviewUrl" :src="pdfPreviewUrl" class="flex-1 w-full"></iframe>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -180,6 +204,7 @@ import { mapState } from "pinia";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import icon from "@/assets/icon.vue";
+import logo from "@/assets/img/st-logo.png";
 
 pdfMake.vfs = pdfFonts.vfs;
 
@@ -191,32 +216,26 @@ export default {
       selectedSemester: 1,
       selectedCurriculum: "",
       spanCache: {}, // ✅ renamed from _spanCache
+      schoolLogo: null,
+
+      showPreviewModal: false,
+      pdfPreviewUrl: null,
     };
   },
   computed: {
     ...mapState(useFetchDataStore, ["schedulers"]),
     semesterName() {
       const s = this.filteredFacultyLoads[0]?.course?.course_semester;
-      return s === 1
-        ? "First"
-        : s === 2
-        ? "Second"
-        : s === 3
-        ? "Midyear"
-        : "Unknown";
+      return s === 1 ? "First" : s === 2 ? "Second" : s === 3 ? "Midyear" : "Unknown";
     },
     schoolYears() {
       const c = this.filteredFacultyLoads[0]?.course?.curriculum;
-      return c
-        ? `${c.curriculum_since} - ${c.curriculum_effective}`
-        : "Unknown";
+      return c ? `${c.curriculum_since} - ${c.curriculum_effective}` : "Unknown";
     },
     instructorName() {
       const i = this.filteredFacultyLoads[0]?.instructor;
       if (!i) return "Unknown";
-      return `${i.instructor_fname} ${i.instructor_mname || ""} ${
-        i.instructor_lname
-      }`
+      return `${i.instructor_fname} ${i.instructor_mname || ""} ${i.instructor_lname}`
         .replace(/\s+/g, " ")
         .trim();
     },
@@ -226,10 +245,8 @@ export default {
     filteredFacultyLoads() {
       return this.schedulers.filter((i) => {
         const matchesInstructor =
-          i?.instructor?.instructor_id?.toString() ===
-          this.instructorId.toString();
-        const matchesSemester =
-          i?.course?.course_semester === this.selectedSemester;
+          i?.instructor?.instructor_id?.toString() === this.instructorId.toString();
+        const matchesSemester = i?.course?.course_semester === this.selectedSemester;
         const matchesCurriculum =
           !this.selectedCurriculum ||
           String(i.course?.curriculum_id) === String(this.selectedCurriculum);
@@ -245,19 +262,17 @@ export default {
       const slots = [];
       for (let h = 7; h < 22; h++) {
         for (let m of [0, 30]) {
-          const start = `${String(h).padStart(2, "0")}:${String(m).padStart(
-            2,
-            "0"
-          )}`;
+          const start = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
           let endHour = h;
           let endMin = m + 30;
           if (endMin === 60) {
             endHour += 1;
             endMin = 0;
           }
-          const end = `${String(endHour).padStart(2, "0")}:${String(
-            endMin
-          ).padStart(2, "0")}`;
+          const end = `${String(endHour).padStart(2, "0")}:${String(endMin).padStart(
+            2,
+            "0"
+          )}`;
           const label = `${this.to12Hr(start)} - ${this.to12Hr(end)}`;
           slots.push({ start, end, label });
         }
@@ -273,8 +288,7 @@ export default {
         {
           label: "Afternoon",
           slots: this.timeSlots.filter(
-            (t) =>
-              this.to24Hr(t.label) >= "12:00" && this.to24Hr(t.label) < "17:00"
+            (t) => this.to24Hr(t.label) >= "12:00" && this.to24Hr(t.label) < "17:00"
           ),
         },
         {
@@ -357,11 +371,7 @@ export default {
           let colspan = 1;
           for (let j = i + 1; j < dayList.length; j++) {
             const nextDay = dayList[j];
-            const nextSched = this.getScheduleFromList(
-              facultyLoads,
-              nextDay,
-              time
-            );
+            const nextSched = this.getScheduleFromList(facultyLoads, nextDay, time);
 
             const isSame =
               nextSched &&
@@ -369,8 +379,7 @@ export default {
               nextSched.time_start === sched.time_start &&
               nextSched.time_end === sched.time_end &&
               nextSched.course?.course_code === sched.course?.course_code &&
-              nextSched.project?.project_section ===
-                sched.project?.project_section &&
+              nextSched.project?.project_section === sched.project?.project_section &&
               nextSched.room?.room_name === sched.room?.room_name &&
               nextSched.room?.room_number === sched.room?.room_number;
 
@@ -391,8 +400,280 @@ export default {
 
       return groups;
     },
-    async downloadPDF() {
-      // your existing implementation
+    async getBase64ImageFromURL(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          resolve(canvas.toDataURL("image/png"));
+        };
+
+        img.src = url;
+      });
+    },
+    async openPreview() {
+      const docDefinition = this.buildPdfDoc(); // 👈 we will extract this
+      pdfMake.createPdf(docDefinition).getDataUrl((dataUrl) => {
+        this.pdfPreviewUrl = dataUrl;
+        this.showPreviewModal = true;
+      });
+    },
+
+    buildPdfDoc() {
+      const header = [
+        { text: "Time", colSpan: 2, alignment: "center", bold: true },
+        {},
+        ...this.days.map((d) => ({
+          text: d,
+          alignment: "center",
+          bold: true,
+        })),
+      ];
+
+      const body = [header];
+
+      this.groupedTimeSlots.forEach((group) => {
+        group.slots.forEach((slot, index) => {
+          const row = [];
+
+          if (index === 0) {
+            row.push({
+              text: group.label,
+              rowSpan: group.slots.length,
+              alignment: "center",
+              bold: true,
+            });
+          } else {
+            row.push({});
+          }
+
+          row.push({ text: slot.label, fontSize: 7 });
+
+          const grouped = this.groupSubjectsByDay(
+            this.days,
+            slot.start,
+            this.filteredFacultyLoads
+          );
+
+          grouped.forEach((g, dayIndex) => {
+            const day = this.days[dayIndex];
+
+            if (g.type === "empty") {
+              row.push({ text: "", fillColor: "#F5F5F5" });
+              return;
+            }
+
+            const sched = g.sched;
+            const color = this.getColor(day, this.normalizeTime(sched.time_start));
+
+            row.push({
+              text: `${sched.project?.project_section || ""}\n${
+                sched.course?.course_code || ""
+              }\nRoom: ${sched.room?.room_name || ""}`,
+              colSpan: g.colspan,
+              fontSize: 6,
+              fillColor: color,
+              margin: [2, 2, 2, 2],
+            });
+
+            for (let i = 1; i < g.colspan; i++) {
+              row.push({});
+            }
+          });
+
+          body.push(row);
+        });
+      });
+
+      return {
+        pageSize: {
+          width: 936,
+          height: 612,
+        },
+        pageOrientation: "landscape",
+        pageMargins: [30, 30, 30, 20],
+
+        // ✅ GLOBAL FONT SETTINGS
+        defaultStyle: {
+          fontSize: 9,
+        },
+
+        content: [
+          {
+            stack: [
+              this.schoolLogo
+                ? {
+                    image: this.schoolLogo,
+                    width: 70,
+                    alignment: "center",
+                    margin: [0, 0, 0, 8],
+                  }
+                : {},
+              {
+                alignment: "center",
+                stack: [
+                  {
+                    text: "St. John Paul II College of Davao",
+                    bold: true,
+                    fontSize: 12, // 👈 TITLE SIZE
+                  },
+                  {
+                    text: "Ecoland Dr, Matina, Davao City",
+                    fontSize: 9,
+                  },
+                ],
+              },
+            ],
+            margin: [0, 0, 0, 10],
+          },
+
+          {
+            canvas: [
+              {
+                type: "line",
+                x1: 0,
+                y1: 0,
+                x2: 515,
+                y2: 0,
+                lineWidth: 1,
+                lineColor: "#cccccc",
+              },
+            ],
+            margin: [0, 0, 0, 10],
+          },
+
+          {
+            text: "Teacher's Load",
+            alignment: "center",
+            bold: true,
+            fontSize: 11, // 👈 TITLE SIZE
+          },
+
+          {
+            text: `${this.semesterName} Semester • SY ${this.schoolYears}`,
+            alignment: "center",
+            fontSize: 9,
+          },
+
+          { text: "\n" },
+
+          // ✅ TABLE (YOUR SCHEDULE)
+          {
+            table: {
+              headerRows: 1,
+              dontBreakRows: true,
+              keepWithHeaderRows: 1,
+
+              widths: ["auto", "auto", "*", "*", "*", "*", "*", "*", "*"],
+
+              body: [
+                // HEADER
+                [
+                  {
+                    text: "Time",
+                    colSpan: 2,
+                    bold: true,
+                    fontSize: 10,
+                    alignment: "center",
+                  },
+                  {},
+                  ...this.days.map((d) => ({
+                    text: d,
+                    bold: true,
+                    fontSize: 10,
+                    alignment: "center",
+                  })),
+                ],
+
+                // BODY
+                ...this.groupedTimeSlots.flatMap((group) =>
+                  group.slots.map((slot, index) => {
+                    const row = [];
+
+                    if (index === 0) {
+                      row.push({
+                        text: group.label,
+                        rowSpan: group.slots.length,
+                        bold: true,
+                        fontSize: 9,
+                        alignment: "center",
+                      });
+                    } else {
+                      row.push({});
+                    }
+
+                    row.push({
+                      text: slot.label,
+                      fontSize: 8,
+                    });
+
+                    const grouped = this.groupSubjectsByDay(
+                      this.days,
+                      slot.start,
+                      this.filteredFacultyLoads
+                    );
+
+                    grouped.forEach((g, dayIndex) => {
+                      if (g.type === "empty") {
+                        row.push({ text: "", fillColor: "#F5F5F5" });
+                        return;
+                      }
+
+                      const sched = g.sched;
+
+                      row.push({
+                        text:
+                          `${sched.project?.project_section || ""}\n` +
+                          `${sched.course?.course_code || ""}\n` +
+                          `Room: ${sched.room?.room_name || ""}`,
+                        colSpan: g.colspan,
+                        fontSize: 7,
+                        fillColor: this.getColor(
+                          this.days[dayIndex],
+                          this.normalizeTime(sched.time_start)
+                        ),
+                        margin: [2, 2, 2, 2],
+                      });
+
+                      for (let i = 1; i < g.colspan; i++) {
+                        row.push({});
+                      }
+                    });
+
+                    return row;
+                  })
+                ),
+              ],
+            },
+          },
+
+          { text: "\n\n" },
+
+          {
+            alignment: "right",
+            stack: [
+              {
+                text: this.instructorName,
+                decoration: "underline",
+                bold: true,
+              },
+              { text: "Instructor" },
+            ],
+          },
+        ],
+      };
+    },
+    downloadPDF() {
+      const docDefinition = this.buildPdfDoc();
+      pdfMake.createPdf(docDefinition).download("faculty_schedule.pdf");
     },
   },
   async mounted() {
@@ -404,6 +685,8 @@ export default {
 
     const curriculum = this.$route.query.curriculum_id;
     if (curriculum) this.selectedCurriculum = curriculum; // store in data()
+
+    this.schoolLogo = await this.getBase64ImageFromURL(logo);
   },
 };
 </script>

@@ -34,20 +34,14 @@
           <table
             class="min-w-full table-auto border-separate border-spacing-y-2 text-sm text-gray-700"
           >
-            <thead
-              class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide"
-            >
+            <thead class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide">
               <tr>
-                <th class="px-4 py-3 text-center rounded-tl-xl font-normal">
-                  #
-                </th>
+                <th class="px-4 py-3 text-center rounded-tl-xl font-normal">#</th>
                 <th class="px-4 py-3 text-left font-normal">Session</th>
                 <th class="px-4 py-3 text-left font-normal">Set</th>
                 <th class="px-4 py-3 text-left font-normal">Day</th>
                 <th class="px-4 py-3 text-left font-normal">Time</th>
-                <th class="px-4 py-3 text-left rounded-tr-xl font-normal">
-                  Status
-                </th>
+                <th class="px-4 py-3 text-left rounded-tr-xl font-normal">Status</th>
               </tr>
             </thead>
 
@@ -82,9 +76,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedData.length === 0">
-                <td colspan="7" class="text-left py-8 text-gray-400">
-                  No records found
-                </td>
+                <td colspan="7" class="text-left py-8 text-gray-400">No records found</td>
               </tr>
             </tbody>
           </table>

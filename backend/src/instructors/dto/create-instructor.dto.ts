@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateInstructorDto {
   @IsString()
@@ -15,6 +15,10 @@ export class CreateInstructorDto {
 
   @IsString()
   instructor_jobtype: string;
+
+    @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
 
   @IsOptional()
   @IsNumber()

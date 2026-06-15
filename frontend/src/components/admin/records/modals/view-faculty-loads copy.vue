@@ -17,7 +17,7 @@
                 <option
                   v-for="curr in availableCurriculums"
                   :key="curr.curriculum_id"
-                  :value="`${curr.curriculum_since}-${curr.curriculum_effective}`"
+                 :value="`${curr.curriculum_since}-${curr.curriculum_effective}`"
                 >
                   {{ curr.curriculum_since }} - {{ curr.curriculum_effective }}
                 </option>
@@ -59,33 +59,37 @@
 
             <!-- Download Button -->
             <router-link
-              :to="{
-                name: 'view-pdf-faculty-loads',
-                params: { id: instructorId },
-                query: {
-                  course_semester: selectedSemester,
-                  curriculum_year: selectedCurriculum, // ✅ renamed
-                },
-              }"
-              class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg cursor-pointer transition duration-200 w-auto"
-            >
-              <div
-                class="p-1 bg-blue-600 bg-opacity-20 rounded-full flex items-center justify-center"
-              >
-                <icon :name="'download'" class="w-4 h-4" />
-              </div>
-              <span class="font-medium text-sm">Show Download Preview</span>
-            </router-link>
+  :to="{
+    name: 'view-pdf-faculty-loads',
+    params: { id: instructorId },
+    query: {
+      course_semester: selectedSemester,
+      curriculum_year: selectedCurriculum, // ✅ renamed
+    },
+  }"
+  class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg cursor-pointer transition duration-200 w-auto"
+>
+  <div
+    class="p-1 bg-blue-600 bg-opacity-20 rounded-full flex items-center justify-center"
+  >
+    <icon :name="'download'" class="w-4 h-4" />
+  </div>
+  <span class="font-medium text-sm">Show Download Preview</span>
+</router-link>
           </div>
 
           <!-- Header -->
-          <div class="flex flex-col items-center text-center border-b pb-4 mb-4">
+          <div
+            class="flex flex-col items-center text-center border-b pb-4 mb-4"
+          >
             <img
               src="@/assets/img/st-logo.png"
               alt="School Logo"
               class="w-20 h-20 object-contain mb-2"
             />
-            <h1 class="text-2xl font-extrabold text-gray-800 uppercase tracking-wide">
+            <h1
+              class="text-2xl font-extrabold text-gray-800 uppercase tracking-wide"
+            >
               St. John Paul II College of Davao
             </h1>
             <p class="text-sm text-gray-600 mt-1">
@@ -158,15 +162,18 @@
                         {{ load.course?.course_requisite }}
                       </td>
                       <td class="px-4 py-2 border text-center">
-                        {{ load.schedule_days }} | {{ formatTime(load.time_start) }} -
-                        {{ formatTime(load.time_end) }} | {{ load.room?.room_name
-                        }}{{ load.room?.room_number }}
+                        {{ load.schedule_days }} |
+                        {{ formatTime(load.time_start) }} -
+                        {{ formatTime(load.time_end) }} |
+                        {{ load.room?.room_name }}{{ load.room?.room_number }}
                       </td>
                     </tr>
 
                     <!-- Total Row -->
                     <tr class="font-semibold bg-gray-100 text-center">
-                      <td colspan="5" class="px-4 py-2 border text-right">TOTAL UNITS</td>
+                      <td colspan="5" class="px-4 py-2 border text-right">
+                        TOTAL UNITS
+                      </td>
                       <td class="px-4 py-2 border">{{ totalUnits }}</td>
                       <td class="px-4 py-2 border"></td>
                       <td class="px-4 py-2 border"></td>
@@ -176,9 +183,11 @@
 
                 <!-- Footer -->
                 <div class="flex justify-between items-start w-full mt-8 px-10">
-                  <div class="grid grid-cols-2 gap-x-10 gap-y-2 text-sm text-gray-500">
+                  <div
+                    class="grid grid-cols-2 gap-x-10 gap-y-2 text-sm text-gray-500"
+                  >
                     <div>Total Preparation: {{ totalPreparation }}</div>
-                    <div>Total Units: {{ totalUnits }}</div>
+                      <div>Total Units: {{ totalUnits }}</div>
                     <div>Overload Units: 0</div>
                     <!-- <div>Minor Subjects: 3</div>
                     <div>Major Subjects: 3</div> -->
@@ -228,54 +237,54 @@ export default {
 
     instructorId() {
       return this.$route.params.id;
-    },
-    totalPreparation() {
-      const set = new Set();
+    },totalPreparation() {
+  const set = new Set();
 
-      this.filteredFacultyLoads.forEach((item) => {
-        const code = item.course?.course_code;
-        if (code) set.add(code);
-      });
+  this.filteredFacultyLoads.forEach((item) => {
+    const code = item.course?.course_code;
+    if (code) set.add(code);
+  });
 
-      return set.size;
-    },
-    availableCurriculums() {
-      const map = new Map();
+  return set.size;
+},
+  availableCurriculums() {
+  const map = new Map();
 
-      this.schedulers.forEach((item) => {
-        const curr = item.course?.curriculum;
+  this.schedulers.forEach((item) => {
+    const curr = item.course?.curriculum;
 
-        if (curr?.curriculum_since && curr?.curriculum_effective) {
-          const key = `${curr.curriculum_since}-${curr.curriculum_effective}`; // ✅ group by year
+    if (curr?.curriculum_since && curr?.curriculum_effective) {
+      const key = `${curr.curriculum_since}-${curr.curriculum_effective}`; // ✅ group by year
 
-          if (!map.has(key)) {
-            map.set(key, curr);
-          }
-        }
-      });
+      if (!map.has(key)) {
+        map.set(key, curr);
+      }
+    }
+  });
 
-      return Array.from(map.values());
-    },
-    filteredFacultyLoads() {
-      if (!this.selectedCurriculum) return [];
+  return Array.from(map.values());
+},
+filteredFacultyLoads() {
+  if (!this.selectedCurriculum) return [];
 
-      return this.schedulers.filter((item) => {
-        const matchesInstructor =
-          String(item.instructor?.instructor_id) === String(this.instructorId);
+  return this.schedulers.filter((item) => {
+    const matchesInstructor =
+      String(item.instructor?.instructor_id) === String(this.instructorId);
 
-        const matchesSemester = item.course?.course_semester === this.selectedSemester;
+    const matchesSemester =
+      item.course?.course_semester === this.selectedSemester;
 
-        const matchesCurriculum = (() => {
-          const curr = item.course?.curriculum;
-          if (!curr) return false;
+    const matchesCurriculum = (() => {
+      const curr = item.course?.curriculum;
+      if (!curr) return false;
 
-          const key = `${curr.curriculum_since}-${curr.curriculum_effective}`;
-          return key === this.selectedCurriculum;
-        })();
+      const key = `${curr.curriculum_since}-${curr.curriculum_effective}`;
+      return key === this.selectedCurriculum;
+    })();
 
-        return matchesInstructor && matchesSemester && matchesCurriculum;
-      });
-    },
+    return matchesInstructor && matchesSemester && matchesCurriculum;
+  });
+},
     groupedFacultyLoads() {
       const grouped = {};
       for (const item of this.filteredFacultyLoads) {

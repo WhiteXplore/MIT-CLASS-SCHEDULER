@@ -43,6 +43,7 @@ export class ClassSchedulesService {
         'course.curriculum.program',
         'room',
         'project',
+        'project.section'
       ],
     });
   }
@@ -55,7 +56,7 @@ export class ClassSchedulesService {
         'course',
         'course.curriculum', // ✅ nested relation
         'room',
-        'project',
+        'project',   'project.section'
       ],
     });
 

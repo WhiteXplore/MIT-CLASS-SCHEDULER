@@ -24,9 +24,24 @@ export const useFetchDataStore = defineStore("fetchData", {
     semesterSettings: [],
     loading: false,
     error: null,
+    user_accounts: [],
   }),
 
   actions: {
+        async fetchUserAccounts() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/user/get-all-users",
+        ); // Update with your NestJS base URL
+        this.user_accounts = response.data;
+      } catch (err) {
+        this.error = err.message || "Failed to fetch user accounts";
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchInstructors() {
       this.loading = true;
       this.error = null;

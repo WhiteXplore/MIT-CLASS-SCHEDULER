@@ -58,24 +58,17 @@
             </div>
 
             <!-- Download Button -->
-            <router-link
-              :to="{
-                name: 'view-pdf-faculty-loads',
-                params: { id: instructorId },
-                query: {
-                  course_semester: selectedSemester,
-                  curriculum_year: selectedCurriculum, // ✅ renamed
-                },
-              }"
-              class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg cursor-pointer transition duration-200 w-auto"
+            <button
+              @click="openPdfPreview"
+              class="flex items-center gap-2 px-4 py-2 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-700 hover:text-white hover:shadow-lg transition duration-200"
             >
               <div
                 class="p-1 bg-blue-600 bg-opacity-20 rounded-full flex items-center justify-center"
               >
                 <icon :name="'download'" class="w-4 h-4" />
               </div>
-              <span class="font-medium text-sm">Show Download Preview</span>
-            </router-link>
+              <span class="font-medium text-sm">Download PDF</span>
+            </button>
           </div>
 
           <!-- Header -->
@@ -207,6 +200,37 @@
       </div>
     </div>
   </div>
+
+  <!-- PDF Preview Modal -->
+  <div
+    v-if="showPdfModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white w-[95%] h-[95%] rounded-xl shadow-xl flex flex-col overflow-hidden"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-center px-4 py-2 border-b">
+        <h2 class="font-semibold text-gray-700">PDF Preview</h2>
+
+        <div class="flex gap-2">
+          <button
+            @click="downloadFromPreview"
+            class="px-3 py-1 bg-blue-600 text-white rounded"
+          >
+            Download
+          </button>
+
+          <button @click="closePdfModal" class="px-3 py-1 bg-red-500 text-white rounded">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <!-- PDF Viewer -->
+      <iframe v-if="pdfUrl" :src="pdfUrl" class="flex-1 w-full"></iframe>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -214,31 +238,42 @@ import icon from "@/assets/icon.vue";
 import { useFetchDataStore } from "@/store/fetch-data-store";
 import { mapState } from "pinia";
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import logo from "@/assets/img/st-logo.png";
+
+pdfMake.vfs = pdfFonts.vfs;
+
 export default {
   name: "ViewFacultyLoads",
   components: { icon },
+
   data() {
     return {
-      selectedSemester: 1, // Default selected semester
-      selectedCurriculum: "", // New curriculum filter
+      selectedSemester: 1,
+      selectedCurriculum: "",
+      showPdfModal: false,
+      pdfUrl: null,
+      schoolLogo: null,
     };
   },
+
   computed: {
     ...mapState(useFetchDataStore, ["schedulers"]),
 
     instructorId() {
       return this.$route.params.id;
     },
+
     totalPreparation() {
       const set = new Set();
-
       this.filteredFacultyLoads.forEach((item) => {
         const code = item.course?.course_code;
         if (code) set.add(code);
       });
-
       return set.size;
     },
+
     availableCurriculums() {
       const map = new Map();
 
@@ -246,16 +281,14 @@ export default {
         const curr = item.course?.curriculum;
 
         if (curr?.curriculum_since && curr?.curriculum_effective) {
-          const key = `${curr.curriculum_since}-${curr.curriculum_effective}`; // ✅ group by year
-
-          if (!map.has(key)) {
-            map.set(key, curr);
-          }
+          const key = `${curr.curriculum_since}-${curr.curriculum_effective}`;
+          if (!map.has(key)) map.set(key, curr);
         }
       });
 
       return Array.from(map.values());
     },
+
     filteredFacultyLoads() {
       if (!this.selectedCurriculum) return [];
 
@@ -265,37 +298,37 @@ export default {
 
         const matchesSemester = item.course?.course_semester === this.selectedSemester;
 
-        const matchesCurriculum = (() => {
-          const curr = item.course?.curriculum;
-          if (!curr) return false;
+        const curr = item.course?.curriculum;
+        const key = curr ? `${curr.curriculum_since}-${curr.curriculum_effective}` : null;
 
-          const key = `${curr.curriculum_since}-${curr.curriculum_effective}`;
-          return key === this.selectedCurriculum;
-        })();
-
-        return matchesInstructor && matchesSemester && matchesCurriculum;
+        return matchesInstructor && matchesSemester && key === this.selectedCurriculum;
       });
     },
+
     groupedFacultyLoads() {
       const grouped = {};
+
       for (const item of this.filteredFacultyLoads) {
         const key = `${item.course?.course_id}_${item.time_start}_${item.time_end}_${item.room?.room_id}`;
+
         if (!grouped[key]) {
           grouped[key] = { ...item, schedule_days: item.schedule_days || "" };
         } else {
-          const existingDays = grouped[key].schedule_days.split(", ");
-          const newDays = item.schedule_days?.split(", ") || [];
-          const merged = Array.from(new Set([...existingDays, ...newDays]));
-          grouped[key].schedule_days = merged.join(", ");
+          const existing = grouped[key].schedule_days.split(", ");
+          const incoming = item.schedule_days?.split(", ") || [];
+          grouped[key].schedule_days = Array.from(
+            new Set([...existing, ...incoming])
+          ).join(", ");
         }
       }
+
       return Object.values(grouped);
     },
 
     instructorName() {
-      const first = this.filteredFacultyLoads[0]?.instructor;
-      return first
-        ? `${first.instructor_fname} ${first.instructor_mname} ${first.instructor_lname}`
+      const i = this.filteredFacultyLoads[0]?.instructor;
+      return i
+        ? `${i.instructor_fname} ${i.instructor_mname} ${i.instructor_lname}`
         : "Unknown Instructor";
     },
 
@@ -307,35 +340,239 @@ export default {
     },
 
     schoolYears() {
-      const curriculum = this.filteredFacultyLoads[0]?.course?.curriculum;
-      if (!curriculum) return "Unknown";
-      return `${curriculum.curriculum_since} - ${curriculum.curriculum_effective}`;
+      const curr = this.filteredFacultyLoads[0]?.course?.curriculum;
+      return curr ? `${curr.curriculum_since} - ${curr.curriculum_effective}` : "Unknown";
     },
 
     totalUnits() {
-      return this.filteredFacultyLoads.reduce((sum, item) => {
-        const lec = Number(item.course?.course_lec) || 0;
-        const lab = Number(item.course?.course_lab) || 0;
-        return lec + lab;
-      }, 0);
+      const map = new Map();
+
+      this.filteredFacultyLoads.forEach((item) => {
+        const key = item.course?.course_id;
+        if (!map.has(key)) {
+          const lec = Number(item.course?.course_lec) || 0;
+          const lab = Number(item.course?.course_lab) || 0;
+          map.set(key, lec + lab);
+        }
+      });
+
+      return Array.from(map.values()).reduce((a, b) => a + b, 0);
     },
   },
+
   methods: {
+    // ================= LOGO =================
+    async getBase64ImageFromURL(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          resolve(canvas.toDataURL("image/png"));
+        };
+
+        img.src = url;
+      });
+    },
+
+    // ================= MODAL =================
+    openPdfPreview() {
+      const docDefinition = this.buildPdfDefinition();
+
+      pdfMake.createPdf(docDefinition).getBlob((blob) => {
+        this.pdfUrl = URL.createObjectURL(blob);
+        this.showPdfModal = true;
+      });
+    },
+
+    closePdfModal() {
+      this.showPdfModal = false;
+
+      if (this.pdfUrl) {
+        URL.revokeObjectURL(this.pdfUrl);
+        this.pdfUrl = null;
+      }
+    },
+
+    downloadFromPreview() {
+      pdfMake.createPdf(this.buildPdfDefinition()).download("Faculty_Load.pdf");
+    },
+
+    // ================= PDF =================
+    buildPdfDefinition() {
+      return {
+        pageSize: "A4",
+        pageOrientation: "landscape",
+        pageMargins: [20, 30, 20, 30],
+
+        content: [
+          // HEADER WITH LOGO
+          {
+            stack: [
+              this.schoolLogo
+                ? {
+                    image: this.schoolLogo,
+                    width: 70,
+                    alignment: "center",
+                    margin: [0, 0, 0, 8],
+                  }
+                : {},
+
+              {
+                text: "St. John Paul II College of Davao",
+                style: "header",
+                alignment: "center",
+              },
+            ],
+            margin: [0, 0, 0, 10],
+          },
+
+          {
+            text: "TEACHER'S LOAD",
+            style: "title",
+          },
+
+          {
+            text: `${this.semesterName} Semester | SY ${this.schoolYears}`,
+            alignment: "center",
+            margin: [0, 0, 0, 10],
+          },
+
+          // TABLE
+          {
+            table: {
+              headerRows: 1,
+              widths: [80, 80, "*", 35, 35, 60, 80, 180],
+
+              body: [
+                [
+                  "Offer Code",
+                  "Code",
+                  "Description",
+                  "Lec",
+                  "Lab",
+                  "Units",
+                  "Requisition",
+                  "Schedule",
+                ],
+
+                ...this.groupedFacultyLoads.map((load) => [
+                  load.course?.course_offer_code || "",
+                  load.course?.course_code || "",
+                  load.course?.course_description || "",
+                  { text: load.course?.course_lec || 0, alignment: "center" },
+                  { text: load.course?.course_lab || 0, alignment: "center" },
+                  {
+                    text:
+                      (Number(load.course?.course_lec) || 0) +
+                      (Number(load.course?.course_lab) || 0),
+                    alignment: "center",
+                  },
+                  load.course?.course_requisite || "",
+                  `${load.schedule_days || ""} | ${this.formatTime(
+                    load.time_start
+                  )} - ${this.formatTime(load.time_end)} | ${load.room?.room_name || ""}${
+                    load.room?.room_number || ""
+                  }`,
+                ]),
+
+                [
+                  {
+                    text: "TOTAL UNITS",
+                    colSpan: 5,
+                    alignment: "right",
+                    bold: true,
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  { text: this.totalUnits, alignment: "center", bold: true },
+                  "",
+                  "",
+                ],
+              ],
+            },
+
+            layout: {
+              fillColor: (rowIndex) => (rowIndex === 0 ? "#f3f4f6" : null),
+            },
+          },
+
+          // FOOTER
+          {
+            margin: [0, 20, 0, 0],
+            columns: [
+              [
+                `Total Preparation: ${this.totalPreparation}`,
+                `Total Units: ${this.totalUnits}`,
+                `Overload Units: 0`,
+              ],
+              [
+                {
+                  text: `\n\n${this.instructorName}`,
+                  alignment: "right",
+                  bold: true,
+                },
+                {
+                  text: "Instructor",
+                  alignment: "right",
+                },
+              ],
+            ],
+          },
+
+          // {
+          //   text: `\nGenerated by: Admin\nDate: ${new Date().toLocaleDateString()}`,
+          //   alignment: "right",
+          //   fontSize: 8,
+          // },
+        ],
+
+        styles: {
+          header: {
+            fontSize: 14,
+            bold: true,
+            alignment: "center",
+          },
+          title: {
+            fontSize: 12,
+            bold: true,
+            alignment: "center",
+          },
+        },
+
+        defaultStyle: {
+          fontSize: 8,
+        },
+      };
+    },
+
+    // ================= HELPERS =================
     selectSemester(sem) {
       this.selectedSemester = sem;
     },
+
     formatTime(time) {
-      if (!time || !time.includes(":")) return "";
-      const [hour, minute] = time.split(":");
-      const h = parseInt(hour);
-      const ampm = h >= 12 ? "PM" : "AM";
-      const hour12 = h % 12 || 12;
-      return `${hour12}:${minute} ${ampm}`;
+      if (!time) return "";
+      const [h, m] = time.split(":");
+      const hour = parseInt(h);
+      return `${hour % 12 || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`;
     },
   },
+
   async mounted() {
     const store = useFetchDataStore();
     await store.fetchSchedulers();
+
+    this.schoolLogo = await this.getBase64ImageFromURL(logo);
   },
 };
 </script>

@@ -1,12 +1,12 @@
 <template>
-  <div class="px-2 mt-2">
+  <div class="px-0 lg:px-4 mt-2">
     <!-- Headers -->
-    <div class="flex justify-between items-start">
-      <h1 class="font-semibold tracking-wide text-md">My Loads</h1>
-    </div>
+    <!-- <div class="flex justify-between items-start">
+      <h1 class="font-semibold tracking-wide text-md hidden lg:block">My Loads</h1>
+    </div> -->
 
     <!-- Main Content  -->
-    <div class="mt-3">
+    <div class="mt-0 md:mt-3">
       <!-- Table -->
       <viewFacultyLoads />
     </div>

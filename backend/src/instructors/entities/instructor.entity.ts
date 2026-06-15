@@ -31,6 +31,12 @@ export class Instructor {
   @Column({ type: 'varchar', length: 50 })
   employee_id: string;
 
+    @Column({
+    type: 'boolean',
+    default: true,
+  })
+  is_active: boolean;
+
   @Column({ type: 'varchar', length: 100 })
   instructor_jobtype: string;
   // Many-to-One with Bachelor

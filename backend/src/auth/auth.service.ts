@@ -59,6 +59,14 @@ export class AuthService {
       maxAge: 3600000,
     });
 
+  // FOR TESTING PURPOSES ONLY, USE THE ABOVE IN PRODUCTION
+//     res.cookie('jwt', token, {
+//   httpOnly: true,
+//   secure: false, // development
+//   sameSite: 'lax',
+//   maxAge: 3600000,
+// });
+
     return res.json({
       message: 'Login successful',
       role: user.role,

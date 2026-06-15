@@ -16,11 +16,7 @@
             <icon :name="'add-students'" />
             <h1 class="font-bold tracking-wide text-lg">Add Sections</h1>
           </div>
-          <icon
-            :name="'circle-close3'"
-            @click="$emit('close')"
-            class="cursor-pointer"
-          />
+          <icon :name="'circle-close3'" @click="$emit('close')" class="cursor-pointer" />
         </div>
         <div class="p-5 w-[20vw] space-y-3">
           <!-- <div class="w-full space-y-2 text-left flex flex-col">
@@ -74,13 +70,13 @@
           <!-- Buttons -->
           <div class="tracking-wide flex justify-end gap-2 mt-4">
             <button
-              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
+              class="bg-red-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md cursor-pointer"
               @click="$emit('close')"
             >
               Cancel
             </button>
             <button
-              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
+              class="bg-green-600 p-2 px-3 rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md cursor-pointer"
               type="submit"
             >
               Submit
@@ -127,7 +123,7 @@ export default {
       try {
         const response = await axios.post(
           process.env.VUE_APP_API_BASE_URL + "/sections/add-sections",
-          this.form,
+          this.form
         );
         console.log(response.data);
         console.log("Submitting form:", this.form);

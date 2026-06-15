@@ -52,11 +52,7 @@
               class="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm"
             >
               <option value="">All Courses</option>
-              <option
-                v-for="course in availableCourses"
-                :key="course"
-                :value="course"
-              >
+              <option v-for="course in availableCourses" :key="course" :value="course">
                 {{ course }}
               </option>
             </select>
@@ -96,11 +92,7 @@
               class="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm"
             >
               <option value="">All Course Levels</option>
-              <option
-                v-for="level in availableCourseLevel"
-                :key="level"
-                :value="level"
-              >
+              <option v-for="level in availableCourseLevel" :key="level" :value="level">
                 {{
                   level === 1
                     ? "First"
@@ -140,44 +132,44 @@
           >
             <!-- Table -->
             <div class="w-full mt-3 rounded-xl shadow-md overflow-hidden">
-              <div
-                class="overflow-y-auto max-h-[63vh] transition-all duration-300"
-              >
+              <div class="overflow-y-auto max-h-[63vh] transition-all duration-300">
                 <table
                   class="min-w-full table-auto border-separate border-spacing-y-2 text-sm text-gray-700"
                 >
-                  <thead
-                    class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide"
-                  >
+                  <thead class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide">
                     <tr>
-                      <th class="px-4 py-3 text-left font-normal">#</th>
-                      <th class="px-4 py-3 text-left font-normal">
-                        Instructors
-                      </th>
-                      <th class="px-4 py-3 text-left font-normal">Program</th>
-                      <th class="px-4 py-3 text-left font-normal">Course</th>
-                      <th class="px-4 py-3 text-left font-normal">Time</th>
-                      <th class="px-4 py-3 text-left font-normal">Day</th>
-                      <th class="px-4 py-3 text-left rounded-tr-lg font-normal">
+                      <!-- <th class="px-4 py-3 text-left font-normal">#</th> -->
+                      <th class="px-4 py-3 text-left font-normal w-[10%]">Instructors</th>
+                      <th class="px-4 py-3 text-left font-normal w-[20%]">Program</th>
+                      <th class="px-4 py-3 text-left font-normal w-[7%]">Set</th>
+                      <th class="px-4 py-3 text-left font-normal w-[7%]">Course</th>
+                      <th class="px-4 py-3 text-left font-normal w-[10%]">Time</th>
+                      <th class="px-4 py-3 text-left font-normal w-[10%]">Day</th>
+                      <th class="px-4 py-3 text-left font-normal w-[10%]">Room</th>
+                      <th class="px-4 py-3 text-left rounded-tr-lg font-normal w-[7%]">
                         Actions
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(item, index) in paginatedData"
+                      v-for="item in paginatedData"
                       :key="item.id"
                       class="bg-white hover:bg-blue-50 transition-all border border-gray-200 rounded-md shadow-sm"
                     >
-                      <td class="px-4 py-3 text-left">
+                      <!-- <td class="px-4 py-3 text-left">
                         {{ startIndex + index }}
-                      </td>
+                      </td> -->
                       <td class="px-4 py-3 text-left">
                         {{ item.instructor?.instructor_fname }}
                         {{ item.instructor?.instructor_lname }}
                       </td>
+
                       <td class="px-4 py-3 text-left">
                         {{ item.course?.curriculum?.program?.program_name }}
+                      </td>
+                      <td class="px-4 py-3 text-left">
+                        {{ item.project?.project_section || "N/A" }}
                       </td>
                       <td class="px-4 py-3 text-left">
                         {{ item.course?.course_code }}
@@ -188,6 +180,9 @@
                       </td>
                       <td class="px-4 py-3 text-left">
                         {{ item.schedule_days }}
+                      </td>
+                      <td class="px-4 py-3 text-left">
+                        {{ item.room?.room_name }} - {{ item.room?.room_type }}
                       </td>
                       <td class="px-4 py-3 text-left">
                         <div class="flex gap-2">
@@ -260,6 +255,7 @@
       v-if="showEditModal"
       :schedule="selectedClassSchedule"
       @close="closeModal"
+      @refresh="loadSchedulers"
     />
   </div>
   <!-- Delete Confirmation Modal -->
@@ -280,9 +276,7 @@
       />
     </div>
 
-    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
-      Delete Confirmation
-    </h1>
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">Delete Confirmation</h1>
     <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
       Are you sure you want to delete this record? This action cannot be undone.
     </p>
@@ -352,8 +346,7 @@ export default {
         const instructorName = `${item.instructor?.instructor_fname || ""} ${
           item.instructor?.instructor_lname || ""
         }`.toLowerCase();
-        const programName =
-          item.course?.curriculum?.program?.program_name || "";
+        const programName = item.course?.curriculum?.program?.program_name || "";
         const courseCode = item.course?.course_code || "";
         const sectionName = item.project?.project_section || "";
         const semesterNum = item.course?.course_semester || ""; // ✅ NEW
@@ -381,10 +374,7 @@ export default {
         if (this.selectedFilter === "semester" && this.selectedSemester) {
           return matchesSearch && semesterNum === this.selectedSemester;
         }
-        if (
-          this.selectedFilter === "course_level" &&
-          this.selectedCourseLevel
-        ) {
+        if (this.selectedFilter === "course_level" && this.selectedCourseLevel) {
           return matchesSearch && courseLevelNum === this.selectedCourseLevel;
         }
 
@@ -405,10 +395,7 @@ export default {
         : (this.currentPage - 1) * this.itemsPerPage + 1;
     },
     endIndex() {
-      return Math.min(
-        this.currentPage * this.itemsPerPage,
-        this.filteredData.length,
-      );
+      return Math.min(this.currentPage * this.itemsPerPage, this.filteredData.length);
     },
     pageNumbers() {
       const total = this.totalPages;
@@ -502,7 +489,7 @@ export default {
           `${process.env.VUE_APP_API_BASE_URL}/class-schedules/delete-id/${id}`,
           {
             method: "DELETE",
-          },
+          }
         );
         toast.success("Record successfully deleted!");
         if (!response.ok) {
