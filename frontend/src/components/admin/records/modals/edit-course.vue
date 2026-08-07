@@ -36,7 +36,7 @@
               >
                 <option value="" disabled>Select Curriculum:</option>
                 <option
-                  v-for="curriculum in curriculums"
+                  v-for="curriculum in filteredCurriculums"
                   :key="curriculum.curriculum_id"
                   :value="curriculum.curriculum_id"
                 >
@@ -265,17 +265,20 @@ export default {
 
   computed: {
     ...mapState(useFetchDataStore, ["curriculums", "courses"]),
-
+    filteredCurriculums() {
+      return this.curriculums.filter((curriculum) => !curriculum.is_archive);
+    },
     filteredCourseOptions() {
-      return this.availableCourses.filter(
-        (course) =>
-          course.course_code
-            .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase()) ||
-          course.course_description
-            .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase()),
-      );
+      const query = this.searchCourseQuery.toLowerCase();
+
+      return this.availableCourses.filter((course) => {
+        return (
+          !course.is_archive &&
+          (!query ||
+            course.course_code.toLowerCase().includes(query) ||
+            course.course_description.toLowerCase().includes(query))
+        );
+      });
     },
 
     // ✅ disables requisites input if description contains internship

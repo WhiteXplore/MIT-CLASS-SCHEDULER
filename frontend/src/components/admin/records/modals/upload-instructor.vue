@@ -72,7 +72,9 @@
                   Select Excel File
                 </h2>
 
-                <p class="mt-2 text-sm leading-relaxed text-gray-500 max-w-[250px]">
+                <p
+                  class="mt-2 text-sm leading-relaxed text-gray-500 max-w-[250px]"
+                >
                   Upload an Excel file containing instructor records.
                 </p>
 
@@ -86,7 +88,10 @@
             </div>
 
             <!-- FILE INFO -->
-            <div v-if="file" class="mt-5 border border-gray-200 rounded-2xl p-5">
+            <div
+              v-if="file"
+              class="mt-5 border border-gray-200 rounded-2xl p-5"
+            >
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
                   <p class="text-xs uppercase tracking-wide text-gray-400">
@@ -159,33 +164,52 @@
                 </svg>
               </div>
 
-              <h3 class="mt-5 text-base font-semibold text-gray-800">No Excel Data</h3>
+              <h3 class="mt-5 text-base font-semibold text-gray-800">
+                No Excel Data
+              </h3>
 
               <p class="mt-2 text-sm text-gray-500 max-w-sm">
-                Upload an Excel file to preview instructor records before saving them into
-                the system.
+                Upload an Excel file to preview instructor records before saving
+                them into the system.
               </p>
             </div>
 
             <!-- TABLE -->
-            <div v-else class="border border-gray-200 rounded-2xl overflow-hidden">
+            <div
+              v-else
+              class="border border-gray-200 rounded-2xl overflow-hidden"
+            >
               <div class="overflow-auto max-h-[500px]">
                 <table class="min-w-[900px] w-full text-sm text-left">
-                  <thead class="sticky top-0 bg-white border-b border-gray-200 z-10">
+                  <thead
+                    class="sticky top-0 bg-white border-b border-gray-200 z-10"
+                  >
                     <tr>
                       <th class="px-5 py-4 font-semibold text-gray-700">#</th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">First Name</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        First Name
+                      </th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">Middle Name</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        Middle Name
+                      </th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">Last Name</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        Last Name
+                      </th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">Gender</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        Gender
+                      </th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">Job Type</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        Job Type
+                      </th>
 
-                      <th class="px-5 py-4 font-semibold text-gray-700">Employee ID</th>
+                      <th class="px-5 py-4 font-semibold text-gray-700">
+                        Employee ID
+                      </th>
                     </tr>
                   </thead>
 
@@ -344,7 +368,7 @@ export default {
             headers: {
               "Content-Type": "multipart/form-data",
             },
-          }
+          },
         );
 
         console.log("Upload Success:", response.data);

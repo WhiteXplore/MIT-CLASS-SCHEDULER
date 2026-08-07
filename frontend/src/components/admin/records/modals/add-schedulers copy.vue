@@ -5,9 +5,7 @@
     <div class="rounded-[15px] shadow-lg">
       <form
         v-if="
-          !showConflictModal &&
-          !showConflictLectureModal &&
-          !showConflictLaboratoryModal
+          !showConflictModal && !showConflictLectureModal && !showConflictLaboratoryModal
         "
         @submit.prevent="submitData"
         class="w-auto bg-white text-[13px] rounded-[15px] shadow-lg"
@@ -21,16 +19,10 @@
             <icon :name="'add-students'" />
             <h1 class="font-bold tracking-wide text-lg">Add Class Schedule</h1>
           </div>
-          <icon
-            :name="'circle-close3'"
-            @click="$emit('close')"
-            class="cursor-pointer"
-          />
+          <icon :name="'circle-close3'" @click="$emit('close')" class="cursor-pointer" />
         </div>
 
-        <div
-          class="p-5 w-[32vw] text-left relative max-h-[85vh] overflow-y-auto"
-        >
+        <div class="p-5 w-[32vw] text-left relative">
           <div class="w-full flex justify-end items-center gap-3 mb-2">
             <!-- Semester Select -->
             <div class="w-full">
@@ -53,11 +45,7 @@
                 class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out"
               >
                 <option value="" disabled>Select a program</option>
-                <option
-                  v-for="program in uniquePrograms"
-                  :key="program"
-                  :value="program"
-                >
+                <option v-for="program in uniquePrograms" :key="program" :value="program">
                   {{ program }}
                 </option>
               </select>
@@ -156,10 +144,7 @@
               <!-- ✅ Show selected room type -->
               <p v-if="form.room_id" class="text-xs text-gray-600 mt-1">
                 Room Type:
-                {{
-                  rooms.find((r) => r.room_id === form.room_id)?.room_type ||
-                  "N/A"
-                }}
+                {{ rooms.find((r) => r.room_id === form.room_id)?.room_type || "N/A" }}
               </p>
             </div>
 
@@ -249,9 +234,7 @@
                     class="text-xs text-amber-700"
                   >
                     Only
-                    <strong
-                      >{{ selectedProjectInfo.remainingHours }} hour(s)</strong
-                    >
+                    <strong>{{ selectedProjectInfo.remainingHours }} hour(s)</strong>
                     remaining for scheduling.
                   </p>
 
@@ -279,8 +262,8 @@
               v-if="isScheduleCompleted"
               class="bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 rounded-md mt-2"
             >
-              This course offering has already completed its required schedule
-              hours. Days and time selection have been disabled.
+              This course offering has already completed its required schedule hours. Days
+              and time selection have been disabled.
             </div>
 
             <!-- Time -->
@@ -294,11 +277,7 @@
                   class="w-full border px-2 py-3 border-gray-600 rounded-md text-md text-gray-800"
                 >
                   <option value="" disabled>Select Time Start:</option>
-                  <option
-                    v-for="time in time"
-                    :key="time.time_id"
-                    :value="time.time"
-                  >
+                  <option v-for="time in time" :key="time.time_id" :value="time.time">
                     {{ formatTime12Hour(time.time) }}
                   </option>
                 </select>
@@ -312,11 +291,7 @@
                   class="w-full border px-2 py-3 border-gray-600 rounded-md text-md text-gray-800"
                 >
                   <option value="" disabled>Select Time End:</option>
-                  <option
-                    v-for="time in time"
-                    :key="time.time_id"
-                    :value="time.time"
-                  >
+                  <option v-for="time in time" :key="time.time_id" :value="time.time">
                     {{ formatTime12Hour(time.time) }}
                   </option>
                 </select>
@@ -342,10 +317,7 @@
                   <div>
                     <p class="font-medium text-sm">Selected Schedule</p>
 
-                    <p
-                      v-if="isExceedingRemainingHours"
-                      class="text-red-700 text-xs"
-                    >
+                    <p v-if="isExceedingRemainingHours" class="text-red-700 text-xs">
                       ⚠ Selected schedule exceeds the remaining hours.
                     </p>
 
@@ -358,9 +330,7 @@
                 <div class="mt-2 text-xs">
                   <div>
                     Selected:
-                    <strong
-                      >{{ (selectedScheduleMinutes / 60).toFixed(1) }}h</strong
-                    >
+                    <strong>{{ (selectedScheduleMinutes / 60).toFixed(1) }}h</strong>
                   </div>
 
                   <div>
@@ -385,9 +355,7 @@
                   v-for="day in schedule_days"
                   :key="day"
                   @click="
-                    !isScheduleCompleted &&
-                      !disabledDays.includes(day) &&
-                      toggleDay(day)
+                    !isScheduleCompleted && !disabledDays.includes(day) && toggleDay(day)
                   "
                   :class="[
                     disabledDays.includes(day)
@@ -446,17 +414,13 @@
       v-if="showConflictModal"
       class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-xs flex justify-center items-center z-50"
     >
-      <div
-        class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all"
-      >
+      <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all">
         <!-- Header -->
         <div class="flex items-center gap-3 mb-4">
           <div class="bg-red-100 p-2 rounded-full">
             <icon name="exclamationmark" class="text-red-600 w-6 h-6" />
           </div>
-          <h2 class="text-lg font-semibold text-red-700">
-            Schedule Conflict Detected
-          </h2>
+          <h2 class="text-lg font-semibold text-red-700">Schedule Conflict Detected</h2>
         </div>
 
         <!-- Conflict Reason -->
@@ -538,17 +502,13 @@
       v-if="showConflictLectureModal && !showConflictModal"
       class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-xs flex justify-center items-center z-50"
     >
-      <div
-        class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all"
-      >
+      <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all">
         <!-- Header -->
         <div class="flex items-center gap-3 mb-4">
           <div class="bg-red-100 p-2 rounded-full">
             <icon name="exclamationmark" class="text-red-600 w-6 h-6" />
           </div>
-          <h2 class="text-lg font-semibold text-red-700">
-            Lecture Hour Limit Reached
-          </h2>
+          <h2 class="text-lg font-semibold text-red-700">Lecture Hour Limit Reached</h2>
         </div>
 
         <!-- Message -->
@@ -566,9 +526,8 @@
           </p>
           <p>
             This schedule would add
-            <strong>{{ lectureLimitDetails.addedMinutes }} mins</strong>,
-            resulting in a total of
-            <strong>{{ lectureLimitDetails.totalMinutes }} mins</strong>, which
+            <strong>{{ lectureLimitDetails.addedMinutes }} mins</strong>, resulting in a
+            total of <strong>{{ lectureLimitDetails.totalMinutes }} mins</strong>, which
             exceeds the <strong>180 mins (3-hour)</strong> weekly lecture limit.
           </p>
         </div>
@@ -588,15 +547,11 @@
     <!-- Laboratory Limit Conflict Modal -->
     <div
       v-if="
-        showConflictLaboratoryModal &&
-        !showConflictModal &&
-        !showConflictLectureModal
+        showConflictLaboratoryModal && !showConflictModal && !showConflictLectureModal
       "
       class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-xs flex justify-center items-center z-50"
     >
-      <div
-        class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all"
-      >
+      <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-lg p-6 transition-all">
         <!-- Header -->
         <div class="flex items-center gap-3 mb-4">
           <div class="bg-red-100 p-2 rounded-full">
@@ -622,11 +577,9 @@
           </p>
           <p>
             This schedule would add
-            <strong>{{ labLimitDetails.addedMinutes }} mins</strong>, resulting
-            in a total of
-            <strong>{{ labLimitDetails.totalMinutes }} mins</strong>, which
-            exceeds the <strong>300 mins (5-hour)</strong> weekly laboratory
-            limit.
+            <strong>{{ labLimitDetails.addedMinutes }} mins</strong>, resulting in a total
+            of <strong>{{ labLimitDetails.totalMinutes }} mins</strong>, which exceeds the
+            <strong>300 mins (5-hour)</strong> weekly laboratory limit.
           </p>
         </div>
 
@@ -725,7 +678,7 @@ export default {
     ]),
     isSubmitDisabled() {
       const hasDisabledSelectedDay = this.form.schedule_days.some((day) =>
-        this.disabledDays.includes(day),
+        this.disabledDays.includes(day)
       );
 
       return (
@@ -736,18 +689,13 @@ export default {
       );
     },
     disabledDays() {
-      if (
-        !this.form.instructor_id ||
-        !this.form.time_start ||
-        !this.form.time_end
-      ) {
+      if (!this.form.instructor_id || !this.form.time_start || !this.form.time_end) {
         return [];
       }
 
       return this.schedule_days.filter((day) => {
         return this.schedulers.some((sched) => {
-          const instructorId =
-            sched.instructor?.instructor_id ?? sched.instructor_id;
+          const instructorId = sched.instructor?.instructor_id ?? sched.instructor_id;
 
           if (String(instructorId) !== String(this.form.instructor_id)) {
             return false;
@@ -765,7 +713,7 @@ export default {
             this.form.time_start,
             this.form.time_end,
             sched.time_start,
-            sched.time_end,
+            sched.time_end
           );
 
           return sameDay && timeOverlap;
@@ -786,35 +734,30 @@ export default {
     isExceedingRemainingHours() {
       if (!this.selectedProjectInfo) return false;
 
-      return (
-        this.selectedScheduleMinutes > this.selectedProjectInfo.remainingMinutes
-      );
+      return this.selectedScheduleMinutes > this.selectedProjectInfo.remainingMinutes;
     },
 
     excessMinutes() {
       if (!this.isExceedingRemainingHours) return 0;
 
-      return (
-        this.selectedScheduleMinutes - this.selectedProjectInfo.remainingMinutes
-      );
+      return this.selectedScheduleMinutes - this.selectedProjectInfo.remainingMinutes;
     },
     selectedProjectInfo() {
       return this.filteredProjects.find(
-        (p) => String(p.project_id) === String(this.form.project_id),
+        (p) => String(p.project_id) === String(this.form.project_id)
       );
     },
     isScheduleCompleted() {
-      const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id,
-      );
+      const course = this.courses.find((c) => c.course_id === this.form.course_id);
 
       const projectId = this.form.project_id;
 
       if (!course || !projectId) return false;
 
-      // All schedules for this project + course
+      // all schedules for this project + course
       const schedules = this.schedulers.filter((s) => {
         const schedProjectId = s.project?.project_id ?? s.project_id;
+
         const schedCourseId = s.course?.course_id ?? s.course_id;
 
         return (
@@ -823,8 +766,7 @@ export default {
         );
       });
 
-      let lectureMinutes = 0;
-      let laboratoryMinutes = 0;
+      let totalMinutes = 0;
 
       schedules.forEach((sched) => {
         const days = Array.isArray(sched.schedule_days)
@@ -836,216 +778,179 @@ export default {
         const [sh, sm] = sched.time_start.split(":").map(Number);
         const [eh, em] = sched.time_end.split(":").map(Number);
 
-        const total = (eh * 60 + em - (sh * 60 + sm)) * days.length;
-
-        const room =
-          sched.room ||
-          this.rooms.find(
-            (r) => r.room_id === (sched.room_id ?? sched.room?.room_id),
-          );
-
-        if (room?.room_type === "Lecture") {
-          lectureMinutes += total;
-        } else if (room?.room_type === "Laboratory") {
-          laboratoryMinutes += total;
-        }
+        totalMinutes += (eh * 60 + em - (sh * 60 + sm)) * days.length;
       });
 
-      const isSummer = Number(this.form.selectedSemester) === 3;
+      // required lecture + lab minutes
+      let requiredMinutes = 0;
 
-      let requiredLectureMinutes = 0;
-      let requiredLaboratoryMinutes = 0;
-
-      if (isSummer) {
-        // Summer: 1 unit = 3 hours
-        requiredLectureMinutes = (course.course_lec || 0) * 180;
-        requiredLaboratoryMinutes = (course.course_lab || 0) * 180;
+      if (course.course_lec === 2) {
+        requiredMinutes += 180;
       } else {
-        // Regular semester
-        requiredLectureMinutes =
-          course.course_lec === 2 ? 180 : (course.course_lec || 0) * 60;
-
-        requiredLaboratoryMinutes = (course.course_lab || 0) * 120;
+        requiredMinutes += (course.course_lec || 0) * 60;
       }
 
-      return (
-        lectureMinutes >= requiredLectureMinutes &&
-        laboratoryMinutes >= requiredLaboratoryMinutes
-      );
+      requiredMinutes += (course.course_lab || 0) * 120;
+
+      return totalMinutes >= requiredMinutes;
     },
     assignedProjectIds() {
-      return new Set(
-        this.schedulers.map((s) => String(s.project_id)).filter(Boolean),
-      );
+      return new Set(this.schedulers.map((s) => String(s.project_id)).filter(Boolean));
     },
     filteredProjects() {
       const selectedCourse = this.courses.find(
-        (c) => c.course_id === this.form.course_id,
+        (c) => c.course_id === this.form.course_id
       );
-
-      const selectedRoom = this.rooms.find(
-        (r) => r.room_id === this.form.room_id,
-      );
+      const selectedRoom = this.rooms.find((r) => r.room_id === this.form.room_id);
 
       if (!selectedCourse) return [];
 
       const offerCode = selectedCourse.course_offer_code;
       const roomType = selectedRoom?.room_type || null;
 
-      return this.projects
-        .filter((project) => {
-          const matchesSearch = project.project_section
-            .toLowerCase()
-            .includes(this.searchProjectQuery.toLowerCase());
+      return (
+        this.projects
+          // 🔎 Filter projects by search + matching course offer code
+          .filter((project) => {
+            const matchesSearch = project.project_section
+              .toLowerCase()
+              .includes(this.searchProjectQuery.toLowerCase());
+            const course = project.courses;
+            return matchesSearch && course && course.course_offer_code === offerCode;
+          })
+          .map((project) => {
+            // ⏳ Get schedules already assigned for this project and roomType
+            const assignedSchedules = this.schedulers.filter((sched) => {
+              const isSameProject =
+                String(sched.project?.project_id ?? sched.project_id) ===
+                String(project.project_id);
+              if (!isSameProject) return false;
 
-          const course = project.courses;
-          const isProjectActive = !project.is_archive;
+              const schedRoom =
+                sched.room || this.rooms.find((r) => r.room_id === sched.room_id) || {};
+              return roomType && schedRoom.room_type === roomType;
+            });
 
-          return (
-            matchesSearch &&
-            isProjectActive &&
-            course &&
-            course.course_offer_code === offerCode
-          );
-        })
-        .map((project) => {
-          // Schedules for this project and room type
-          const assignedSchedules = this.schedulers.filter((sched) => {
-            const isSameProject =
-              String(sched.project?.project_id ?? sched.project_id) ===
-              String(project.project_id);
-
-            if (!isSameProject) return false;
-
-            const schedRoom =
-              sched.room ||
-              this.rooms.find((r) => r.room_id === sched.room_id) ||
-              {};
-
-            return roomType && schedRoom.room_type === roomType;
-          });
-
-          // Current instructor schedules
-          const currentInstructorSchedules = assignedSchedules.filter(
-            (sched) =>
-              String(sched.instructor?.instructor_id ?? sched.instructor_id) ===
-              String(this.form.instructor_id),
-          );
-
-          // Rendered minutes
-          let renderedMinutes = 0;
-
-          currentInstructorSchedules.forEach((sched) => {
-            const days = Array.isArray(sched.schedule_days)
-              ? sched.schedule_days
-              : String(sched.schedule_days)
-                  .split(",")
-                  .map((d) => d.trim());
-
-            const [sh, sm] = sched.time_start.split(":").map(Number);
-            const [eh, em] = sched.time_end.split(":").map(Number);
-
-            const minutesPerDay = eh * 60 + em - (sh * 60 + sm);
-
-            renderedMinutes += minutesPerDay * days.length;
-          });
-
-          // ✅ Uses Regular/Summer rules automatically
-          const requiredMinutes = this.getRequiredMinutes(
-            selectedCourse,
-            roomType,
-          );
-
-          const remainingMinutes = Math.max(
-            requiredMinutes - renderedMinutes,
-            0,
-          );
-
-          const remainingHours = (remainingMinutes / 60)
-            .toFixed(1)
-            .replace(".0", "");
-
-          let assigned = false;
-          let partiallyAssigned = false;
-          let assignedInstructorName = "";
-
-          // Total rendered by ALL instructors
-          let totalRenderedMinutes = 0;
-
-          assignedSchedules.forEach((sched) => {
-            const days = Array.isArray(sched.schedule_days)
-              ? sched.schedule_days
-              : String(sched.schedule_days)
-                  .split(",")
-                  .map((d) => d.trim());
-
-            const [sh, sm] = sched.time_start.split(":").map(Number);
-            const [eh, em] = sched.time_end.split(":").map(Number);
-
-            totalRenderedMinutes +=
-              (eh * 60 + em - (sh * 60 + sm)) * days.length;
-          });
-
-          if (assignedSchedules.length > 0) {
-            const firstInstructor = assignedSchedules[0]?.instructor;
-
-            assignedInstructorName = firstInstructor
-              ? `${firstInstructor.instructor_fname} ${firstInstructor.instructor_lname}`
-              : "";
-
-            const ownedByCurrentInstructor = assignedSchedules.some(
-              (s) =>
-                String(s.instructor?.instructor_id ?? s.instructor_id) ===
-                String(this.form.instructor_id),
+            // 👨‍🏫 Get schedules of the *current instructor* on this project
+            const currentInstructorSchedules = assignedSchedules.filter(
+              (sched) =>
+                sched.instructor?.instructor_id === this.form.instructor_id ||
+                sched.instructor_id === this.form.instructor_id
             );
 
-            if (
-              totalRenderedMinutes > 0 &&
-              totalRenderedMinutes < requiredMinutes
-            ) {
-              partiallyAssigned = true;
+            // 🔢 Calculate rendered minutes by current instructor
+            let renderedMinutes = 0;
+            currentInstructorSchedules.forEach((sched) => {
+              const days = Array.isArray(sched.schedule_days)
+                ? sched.schedule_days
+                : String(sched.schedule_days)
+                    .split(",")
+                    .map((d) => d.trim());
+              const [sh, sm] = sched.time_start.split(":").map(Number);
+              const [eh, em] = sched.time_end.split(":").map(Number);
+              const minutesPerDay = eh * 60 + em - (sh * 60 + sm);
+              renderedMinutes += minutesPerDay * days.length;
+            });
 
-              if (!ownedByCurrentInstructor) {
+            // 📏 Determine required minutes with rules
+            let requiredMinutes = 0;
+            if (roomType === "Lecture") {
+              // Special: 2 lec units = 3 hrs
+              if (selectedCourse.course_lec === 2) {
+                requiredMinutes = 180;
+              } else {
+                requiredMinutes = (selectedCourse.course_lec || 0) * 60;
+              }
+            } else if (roomType === "Laboratory") {
+              // Lab: 1 unit = 2 hrs
+              requiredMinutes = (selectedCourse.course_lab || 0) * 120;
+            } else {
+              // Combo case: if roomType is null or hybrid use total units
+              if (selectedCourse.course_lec === 2 && selectedCourse.course_lab === 1) {
+                requiredMinutes = 300; // 5 hrs (2 lec + 1 lab special)
+              } else {
+                requiredMinutes =
+                  (selectedCourse.course_lec || 0) * 60 +
+                  (selectedCourse.course_lab || 0) * 120;
+              }
+            }
+            const remainingMinutes = Math.max(requiredMinutes - renderedMinutes, 0);
+
+            const remainingHours = (remainingMinutes / 60).toFixed(1).replace(".0", "");
+            // 🏷️ Assignment state
+            let assigned = false;
+            let partiallyAssigned = false;
+            let assignedInstructorName = "";
+
+            // Total minutes rendered by ALL instructors
+            let totalRenderedMinutes = 0;
+
+            assignedSchedules.forEach((sched) => {
+              const days = Array.isArray(sched.schedule_days)
+                ? sched.schedule_days
+                : String(sched.schedule_days)
+                    .split(",")
+                    .map((d) => d.trim());
+
+              const [sh, sm] = sched.time_start.split(":").map(Number);
+              const [eh, em] = sched.time_end.split(":").map(Number);
+
+              totalRenderedMinutes += (eh * 60 + em - (sh * 60 + sm)) * days.length;
+            });
+
+            if (assignedSchedules.length > 0) {
+              const firstInstructor = assignedSchedules[0]?.instructor;
+
+              assignedInstructorName = firstInstructor
+                ? `${firstInstructor.instructor_fname} ${firstInstructor.instructor_lname}`
+                : "";
+
+              const ownedByCurrentInstructor = assignedSchedules.some(
+                (s) =>
+                  String(s.instructor?.instructor_id ?? s.instructor_id) ===
+                  String(this.form.instructor_id)
+              );
+
+              // Partially assigned
+              if (totalRenderedMinutes > 0 && totalRenderedMinutes < requiredMinutes) {
+                partiallyAssigned = true;
+
+                // Lock only if another instructor owns it
+                if (!ownedByCurrentInstructor) {
+                  assigned = true;
+                }
+              }
+
+              // Fully completed
+              if (totalRenderedMinutes >= requiredMinutes) {
                 assigned = true;
               }
             }
 
-            if (totalRenderedMinutes >= requiredMinutes) {
-              assigned = true;
-            }
-          }
-
-          return {
-            ...project,
-            assigned,
-            partiallyAssigned,
-            assignedInstructorName,
-            remainingMinutes,
-            remainingHours,
-          };
-        });
+            return {
+              ...project,
+              assigned,
+              partiallyAssigned,
+              assignedInstructorName,
+              remainingMinutes,
+              remainingHours,
+            };
+          })
+      );
     },
 
     filteredInstructors() {
-      return this.instructors.filter((i) => {
-        const matchesSearch = `${i.instructor_lname} ${i.instructor_fname}`
+      return this.instructors.filter((i) =>
+        `${i.instructor_lname} ${i.instructor_fname}`
           .toLowerCase()
-          .includes(this.searchInstructorQuery.toLowerCase());
-
-        const isInstructorActive = !i.is_archive;
-
-        return matchesSearch && isInstructorActive;
-      });
+          .includes(this.searchInstructorQuery.toLowerCase())
+      );
     },
     uniquePrograms() {
       if (!this.form.selectedSemester || !this.courses.length) return [];
 
       const programs = this.courses
-        .filter(
-          (course) =>
-            course.course_semester === Number(this.form.selectedSemester) &&
-            !course.curriculum?.program?.is_archive,
-        )
+        .filter((course) => course.course_semester === Number(this.form.selectedSemester))
         .map((course) => course.curriculum?.program?.program_name)
         .filter(Boolean);
 
@@ -1060,34 +965,16 @@ export default {
           !this.selectedProgram ||
           course.curriculum?.program?.program_name === this.selectedProgram;
 
+        // ✅ New condition: curriculum must be Active
         const isActive = course.curriculum?.curriculum_status === "Active";
 
-        const isProgramActive = !course.curriculum?.program?.is_archive;
-
-        const isCourseActive = !course.is_archive;
-
-        const matchesSearch =
-          !this.searchCourseQuery ||
-          course.course_code
-            .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase()) ||
-          course.course_description
-            .toLowerCase()
-            .includes(this.searchCourseQuery.toLowerCase());
-
-        return (
-          matchesSemester &&
-          matchesProgram &&
-          isActive &&
-          isProgramActive &&
-          isCourseActive &&
-          matchesSearch
-        );
+        return matchesSemester && matchesProgram && isActive;
       });
     },
+
     filteredRooms() {
       const selectedCourse = this.courses.find(
-        (c) => c.course_id === this.form.course_id,
+        (c) => c.course_id === this.form.course_id
       );
 
       if (!selectedCourse) return [];
@@ -1098,31 +985,20 @@ export default {
       if (selectedCourse.course_lab > 0) allowedRoomTypes.push("Laboratory");
 
       return this.rooms.filter((room) => {
-        const fullRoom =
-          `${room.room_name} - ${room.room_number}`.toLowerCase();
+        const fullRoom = `${room.room_name} - ${room.room_number}`.toLowerCase();
 
-        const matchesSearch = fullRoom.includes(
-          this.searchRoomQuery.toLowerCase(),
-        );
+        const matchesSearch = fullRoom.includes(this.searchRoomQuery.toLowerCase());
 
         const matchesType = allowedRoomTypes.includes(room.room_type);
 
-        const isRoomActive = !room.is_archive;
-
-        return matchesSearch && matchesType && isRoomActive;
+        return matchesSearch && matchesType;
       });
     },
     filteredPrograms() {
       const programsMap = new Map();
 
       this.courses
-        .filter(
-          (course) =>
-            course.course_semester === Number(this.form.selectedSemester) &&
-            !course.is_archive &&
-            !course.curriculum?.program?.is_archive &&
-            course.curriculum?.curriculum_status === "Active",
-        )
+        .filter((course) => course.course_semester === Number(this.form.selectedSemester))
         .forEach((course) => {
           const program = course.curriculum?.program;
           if (program) {
@@ -1182,38 +1058,29 @@ export default {
     getRequiredMinutes(course, roomType) {
       if (!course) return 0;
 
-      const isSummer = Number(this.form.selectedSemester) === 3;
-
-      // SUMMER
-      if (isSummer) {
-        if (roomType === "Lecture") {
-          return (course.course_lec || 0) * 180;
+      // Special case: Summer semester
+      if (Number(this.form.selectedSemester) === 3) {
+        if (roomType === "Lecture" && course.course_lec === 2) {
+          return 9 * 60; // 9 hours → 540 minutes
         }
-
-        if (roomType === "Laboratory") {
-          return (course.course_lab || 0) * 180;
+        if (roomType === "Laboratory" && course.course_lab === 1) {
+          return 6 * 60; // 6 hours → 360 minutes
         }
-
-        return ((course.course_lec || 0) + (course.course_lab || 0)) * 180;
       }
 
-      // REGULAR
+      // Default rules for other semesters
       if (roomType === "Lecture") {
         if (course.course_lec === 2) {
-          return 180;
+          return 180; // 3 hours
         }
-
         return (course.course_lec || 0) * 60;
       }
 
       if (roomType === "Laboratory") {
-        return (course.course_lab || 0) * 120;
+        return (course.course_lab || 0) * 120; // 2 hours per lab unit
       }
 
-      return (
-        (course.course_lec === 2 ? 180 : (course.course_lec || 0) * 60) +
-        (course.course_lab || 0) * 120
-      );
+      return 0;
     },
 
     async submitData() {
@@ -1228,23 +1095,17 @@ export default {
       if (!this.form.time_start || !this.form.time_end)
         return toast.error("Select start and end time.");
 
-      const startIdx = this.time.findIndex(
-        (t) => t.time === this.form.time_start,
-      );
+      const startIdx = this.time.findIndex((t) => t.time === this.form.time_start);
       const endIdx = this.time.findIndex((t) => t.time === this.form.time_end);
       if (startIdx === -1 || endIdx === -1 || startIdx >= endIdx)
         return toast.error("Invalid start or end time.");
 
       const instructor = this.instructors.find(
-        (i) => i.instructor_id === this.form.instructor_id,
+        (i) => i.instructor_id === this.form.instructor_id
       );
-      const course = this.courses.find(
-        (c) => c.course_id === this.form.course_id,
-      );
+      const course = this.courses.find((c) => c.course_id === this.form.course_id);
       const room = this.rooms.find((r) => r.room_id === this.form.room_id);
-      const project = this.projects.find(
-        (p) => p.project_id === this.form.project_id,
-      );
+      const project = this.projects.find((p) => p.project_id === this.form.project_id);
 
       if (!room) return toast.error("Room not found.");
 
@@ -1257,8 +1118,7 @@ export default {
 
       try {
         const res = await axios.get(
-          process.env.VUE_APP_API_BASE_URL +
-            "/class-schedules/get-class-schedules",
+          process.env.VUE_APP_API_BASE_URL + "/class-schedules/get-class-schedules"
         );
         const existing = res.data;
 
@@ -1270,8 +1130,7 @@ export default {
           const isSameCourse =
             s.course?.course_id === this.form.course_id ||
             s.course_id === this.form.course_id;
-          const room =
-            s.room || this.rooms.find((r) => r.room_id === s.room_id) || {};
+          const room = s.room || this.rooms.find((r) => r.room_id === s.room_id) || {};
           const isLecture = (room.room_type || "Lecture") === "Lecture";
           return isSameInstructor && isSameCourse && isLecture;
         });
@@ -1280,7 +1139,7 @@ export default {
           .filter(
             (s) =>
               String(s.project?.project_id ?? s.project_id) ===
-              String(this.form.project_id),
+              String(this.form.project_id)
           )
           .reduce((sum, s) => {
             const days = Array.isArray(s.schedule_days)
@@ -1295,16 +1154,14 @@ export default {
 
         const selectedRoom =
           this.rooms.find((r) => r.room_id === this.form.room_id) || {};
-        const isNewLecture =
-          (selectedRoom.room_type || "Lecture") === "Lecture";
+        const isNewLecture = (selectedRoom.room_type || "Lecture") === "Lecture";
 
         let newMins = 0;
         if (isNewLecture) {
           const [newSh, newSm] = this.form.time_start.split(":").map(Number);
           const [newEh, newEm] = this.form.time_end.split(":").map(Number);
           newMins = newEh * 60 + newEm - (newSh * 60 + newSm);
-          totalMinutesForSameProject +=
-            newMins * this.form.schedule_days.length;
+          totalMinutesForSameProject += newMins * this.form.schedule_days.length;
         }
 
         const lecLimitMinutes = this.getRequiredMinutes(course, "Lecture");
@@ -1313,8 +1170,7 @@ export default {
             instructor_name: this.form.instructor_name,
             course_code: this.form.course_code,
             currentMinutes:
-              totalMinutesForSameProject -
-              newMins * this.form.schedule_days.length,
+              totalMinutesForSameProject - newMins * this.form.schedule_days.length,
             addedMinutes: newMins * this.form.schedule_days.length,
             totalMinutes: totalMinutesForSameProject,
           };
@@ -1332,8 +1188,7 @@ export default {
           const isSameCourse =
             s.course?.course_id === this.form.course_id ||
             s.course_id === this.form.course_id;
-          const room =
-            s.room || this.rooms.find((r) => r.room_id === s.room_id) || {};
+          const room = s.room || this.rooms.find((r) => r.room_id === s.room_id) || {};
           const isLab = (room.room_type || "Laboratory") === "Laboratory";
           return isSameInstructor && isSameCourse && isLab;
         });
@@ -1342,7 +1197,7 @@ export default {
           .filter(
             (s) =>
               String(s.project?.project_id ?? s.project_id) ===
-              String(this.form.project_id),
+              String(this.form.project_id)
           )
           .reduce((sum, s) => {
             const days = Array.isArray(s.schedule_days)
@@ -1355,15 +1210,13 @@ export default {
             return sum + (eh * 60 + em - (sh * 60 + sm)) * days.length;
           }, 0);
 
-        const isNewLab =
-          (selectedRoom.room_type || "Laboratory") === "Laboratory";
+        const isNewLab = (selectedRoom.room_type || "Laboratory") === "Laboratory";
         let newLabMins = 0;
         if (isNewLab) {
           const [newSh, newSm] = this.form.time_start.split(":").map(Number);
           const [newEh, newEm] = this.form.time_end.split(":").map(Number);
           newLabMins = newEh * 60 + newEm - (newSh * 60 + newSm);
-          totalMinutesForSameLabProject +=
-            newLabMins * this.form.schedule_days.length;
+          totalMinutesForSameLabProject += newLabMins * this.form.schedule_days.length;
         }
 
         const labLimitMinutes = this.getRequiredMinutes(course, "Laboratory");
@@ -1372,8 +1225,7 @@ export default {
             instructor_name: this.form.instructor_name,
             course_code: this.form.course_code,
             currentMinutes:
-              totalMinutesForSameLabProject -
-              newLabMins * this.form.schedule_days.length,
+              totalMinutesForSameLabProject - newLabMins * this.form.schedule_days.length,
             addedMinutes: newLabMins * this.form.schedule_days.length,
             totalMinutes: totalMinutesForSameLabProject,
           };
@@ -1398,7 +1250,7 @@ export default {
             this.form.time_start,
             this.form.time_end,
             sched.time_start,
-            sched.time_end,
+            sched.time_end
           );
 
           // 🔎 Normalize IDs (handles nested or top-level + type differences)
@@ -1410,18 +1262,16 @@ export default {
           const schedInstructorId = String(
             (sched.instructor && sched.instructor.instructor_id) ??
               sched.instructor_id ??
-              "",
+              ""
           );
           const schedCourseId = String(
-            (sched.course && sched.course.course_id) ?? sched.course_id ?? "",
+            (sched.course && sched.course.course_id) ?? sched.course_id ?? ""
           );
           const schedProjectId = String(
-            (sched.project && sched.project.project_id) ??
-              sched.project_id ??
-              "",
+            (sched.project && sched.project.project_id) ?? sched.project_id ?? ""
           );
           const schedRoomId = String(
-            (sched.room && sched.room.room_id) ?? sched.room_id ?? "",
+            (sched.room && sched.room.room_id) ?? sched.room_id ?? ""
           );
 
           const instructorMatch = schedInstructorId === formInstructorId;
@@ -1435,8 +1285,7 @@ export default {
           if (roomMatch && courseMatch) {
             const conflictRoomName =
               (sched.room && sched.room.room_name) ||
-              this.rooms.find((r) => String(r.room_id) === formRoomId)
-                ?.room_name ||
+              this.rooms.find((r) => String(r.room_id) === formRoomId)?.room_name ||
               "Selected room";
             sched.reason = `Room "${conflictRoomName}" is already occupied for course "${this.form.course_code}" at the selected time. Please choose a different time or room.`;
             return true;
@@ -1444,8 +1293,7 @@ export default {
 
           // ✅ Rule 2: Instructor double-booked for the SAME project (even if room differs)
           if (instructorMatch && projectMatch) {
-            sched.reason =
-              "Instructor has another class for this project at this time.";
+            sched.reason = "Instructor has another class for this project at this time.";
             return true;
           }
 
@@ -1464,10 +1312,7 @@ export default {
           }
 
           // ✅ Rule 5: Same instructor, DIFFERENT project/course/room at same day/time
-          if (
-            instructorMatch &&
-            (!projectMatch || !courseMatch || !roomMatch)
-          ) {
+          if (instructorMatch && (!projectMatch || !courseMatch || !roomMatch)) {
             sched.reason =
               "This instructor is already teaching another project, course, or in a different room at this time.";
             return true;
@@ -1493,15 +1338,14 @@ export default {
           this.conflictSchedule = {
             ...conflict,
             instructor_fname:
-              this.instructors.find(
-                (c) => c.instructor_id === conflict.instructor_id,
-              )?.instructor_lname || conflict.instructor_id,
+              this.instructors.find((c) => c.instructor_id === conflict.instructor_id)
+                ?.instructor_lname || conflict.instructor_id,
             course_code:
-              this.courses.find((c) => c.course_id === conflict.course_id)
-                ?.course_code || conflict.course_id,
+              this.courses.find((c) => c.course_id === conflict.course_id)?.course_code ||
+              conflict.course_id,
             room_name:
-              this.rooms.find((r) => r.room_id === conflict.room_id)
-                ?.room_name || conflict.room_id,
+              this.rooms.find((r) => r.room_id === conflict.room_id)?.room_name ||
+              conflict.room_id,
             project_section:
               this.projects.find((p) => p.project_id === conflict.project_id)
                 ?.project_section || conflict.project_id,
@@ -1512,8 +1356,7 @@ export default {
 
         // ✅ Save if no conflicts and hour constraints are followed
         await axios.post(
-          process.env.VUE_APP_API_BASE_URL +
-            "/class-schedules/add-class-schedules",
+          process.env.VUE_APP_API_BASE_URL + "/class-schedules/add-class-schedules",
           {
             instructor_id: this.form.instructor_id,
             course_id: this.form.course_id,
@@ -1522,7 +1365,7 @@ export default {
             project_id: this.form.project_id,
             time_start: this.form.time_start,
             time_end: this.form.time_end,
-          },
+          }
         );
 
         new Audio(require("@/assets/add.mp3")).play();

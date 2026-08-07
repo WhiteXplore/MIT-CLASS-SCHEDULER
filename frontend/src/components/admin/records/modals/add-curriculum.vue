@@ -202,13 +202,16 @@ export default {
     ...mapState(useFetchDataStore, ["programs"]),
 
     filteredPograms() {
-      if (!this.searchProgramQuery) return this.programs;
       const query = this.searchProgramQuery.toLowerCase();
-      return this.programs.filter(
-        (program) =>
-          program.program_name.toLowerCase().includes(query) ||
-          program.program_major.toLowerCase().includes(query),
-      );
+
+      return this.programs.filter((program) => {
+        return (
+          !program.is_archive &&
+          (!query ||
+            program.program_name.toLowerCase().includes(query) ||
+            program.program_major.toLowerCase().includes(query))
+        );
+      });
     },
   },
   methods: {

@@ -23,6 +23,12 @@ export class Program {
   @Column({ type: 'varchar', length: 255 })
   program_major: string;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

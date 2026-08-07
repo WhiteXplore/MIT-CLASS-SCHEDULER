@@ -31,6 +31,12 @@ export class Projected {
   @Column({ type: 'varchar', length: 255 })
   project_section: string;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

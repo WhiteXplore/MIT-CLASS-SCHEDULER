@@ -3,7 +3,7 @@
   <button
     @click="toggleSidebar"
     :class="{ hidden: isExpanded }"
-    class="md:hidden fixed top-3 left-4 z-[1001] bg-blue-900 text-white p-1.5 rounded-xl shadow-lg hover:bg-blue-800 transition-all"
+    class="md:hidden fixed top-3 left-4 z-[1001] bg-blue-900 text-white p-3 rounded-full shadow-lg hover:bg-blue-800 transition-all"
   >
     <icon name="burger" />
   </button>
@@ -106,7 +106,9 @@
                   <div
                     class="flex items-center"
                     :class="[
-                      !isExpanded ? 'justify-center w-full' : 'justify-start gap-5',
+                      !isExpanded
+                        ? 'justify-center w-full'
+                        : 'justify-start gap-5',
                     ]"
                   >
                     <icon :name="item.icon" />
@@ -136,7 +138,9 @@
                         $route.path.startsWith(sub.route)
                           ? 'bg-blue-300 text-blue-900'
                           : 'bg-white text-gray-800 hover:bg-gray-200',
-                        index === item.children.length - 1 ? 'rounded-b-md' : '',
+                        index === item.children.length - 1
+                          ? 'rounded-b-md'
+                          : '',
                       ]"
                     >
                       {{ sub.name }}
@@ -153,10 +157,10 @@
       <div
         :class="{
           'ml-0': isMobile,
-          'ml-16 pt-2 pb-0': !isMobile && !isExpanded,
-          'ml-64 pt-2 pb-0': !isMobile && isExpanded,
+          'ml-16': !isMobile && !isExpanded,
+          'ml-64': !isMobile && isExpanded,
         }"
-        class="flex-grow transition-all duration-300 min-h-screen rounded-t-lg overflow-hidden"
+        class="flex-grow transition-all duration-300 pt-2 pb-0 min-h-screen rounded-t-lg overflow-hidden"
       >
         <slot>
           <div class="bg-white w-auto h-full rounded-t-lg shadow mr-2">
@@ -173,7 +177,7 @@
 
 <script>
 import icon from "@/assets/icon.vue";
-import adminTopbar from "../../../components/admin/navigation/topbar.vue";
+import adminTopbar from "../../../components/faculty/navigation/topbar.vue";
 import axios from "axios";
 export default {
   name: "AdminSidebar",
@@ -195,16 +199,18 @@ export default {
             {
               name: "Dashboard",
               icon: "dashboard",
-              route: "/admin-dashboard",
+              route: "/faculty-dashboard",
             },
           ],
         },
+
         {
-          title: "Loads",
+          title: "My Load",
           items: [
             {
-              name: "My Loading",
+              name: "",
               icon: "general",
+
               route: "/faculty-loadings",
             },
           ],
@@ -246,7 +252,9 @@ export default {
       for (const section of this.menuSections) {
         for (const item of section.items) {
           if (item.children) {
-            const found = item.children.find((child) => path.startsWith(child.route));
+            const found = item.children.find((child) =>
+              path.startsWith(child.route),
+            );
 
             if (found) {
               this.isExpanded = true;
@@ -263,9 +271,12 @@ export default {
     },
     async fetchUser() {
       try {
-        const response = await axios.get(process.env.VUE_APP_API_BASE_URL + "/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/auth/me",
+          {
+            withCredentials: true,
+          },
+        );
 
         if (response.data) {
           this.user = response.data;

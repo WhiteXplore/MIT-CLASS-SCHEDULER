@@ -4,33 +4,6 @@
       <div class="text-[13px] text-text mt-4 font-regular">
         Pages / Instructor Information
       </div>
-      <div class="flex gap-2">
-        <!-- Add Instructor -->
-        <div
-          @click="toggleAdd"
-          class="flex items-center gap-2 px-2.5 py-1.5 border text-green-600 border-green-600 rounded-xl hover:bg-green-50 hover:shadow-lg cursor-pointer transition duration-200"
-        >
-          <div
-            class="p-1 bg-green-600 bg-opacity-20 rounded-full flex items-center justify-center"
-          >
-            <icon :name="'add-account1.1'" class="w-4 h-4" />
-          </div>
-          <span class="font-medium text-sm">Add Instructor</span>
-        </div>
-
-        <!-- Upload Excel -->
-        <div
-          @click="toggleUpload"
-          class="flex items-center gap-2 px-2.5 py-1.5 border text-blue-600 border-blue-600 rounded-xl hover:bg-blue-50 hover:shadow-lg cursor-pointer transition duration-200"
-        >
-          <div
-            class="p-1 bg-blue-600 bg-opacity-20 rounded-full flex items-center justify-center"
-          >
-            <icon name="upload" class="w-4 h-4" />
-          </div>
-          <span class="font-medium text-sm">Upload Excel</span>
-        </div>
-      </div>
     </div>
 
     <div class="text-[14px] bg-white rounded-xl">
@@ -91,6 +64,9 @@
                         Job Status
                       </th>
                       <th class="px-4 py-3 text-left font-normal">Status</th>
+                      <th class="px-4 py-3 text-left font-normal">
+                        Archive Status
+                      </th>
                       <th class="px-4 py-3 text-left rounded-tr-lg font-normal">
                         Actions
                       </th>
@@ -168,6 +144,30 @@
                         </span>
                       </td>
 
+                      <td class="px-4 py-3 text-left">
+                        <span
+                          class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium"
+                          :class="
+                            instructor_data.is_archive
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-red-50 text-red-700'
+                          "
+                        >
+                          <span
+                            class="w-2 h-2 rounded-full"
+                            :class="
+                              instructor_data.is_archive
+                                ? 'bg-emerald-500'
+                                : 'bg-red-500'
+                            "
+                          ></span>
+
+                          {{
+                            instructor_data.is_archive ? "Archived" : "Return"
+                          }}
+                        </span>
+                      </td>
+
                       <!-- Actions -->
                       <td class="px-4 py-3 text-left">
                         <div class="flex items-center gap-2">
@@ -196,12 +196,13 @@
                             <icon name="delete" /> Delete
                           </button> -->
 
-                          <!-- Archive  -->
+                          <!-- Return  -->
                           <button
-                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
-                            @click="toggleArchive(instructor_data)"
+                            class="px-3 py-1 h-8 border border-green-300 hover:bg-green-200 text-green-800 rounded-lg flex items-center gap-1"
+                            @click="toggleRestore(instructor_data)"
                           >
-                            <icon name="circle-down" /> Archive
+                            <icon name="undo" />
+                            Return
                           </button>
                         </div>
                       </td>
@@ -291,14 +292,20 @@
     </div>
 
     <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
-      Archive Confirmation
+      Restore Instructor
     </h1>
 
     <p
       class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
     >
-      Are you sure you want to archive? This instructor will be removed from the
-      active list but can be restored later.
+      Are you sure you want to restore
+      <span class="font-semibold text-gray-700">
+        {{ recordToDelete?.instructor_fname }}
+        {{ recordToDelete?.instructor_lname }} </span
+      >?
+      <br />
+      This instructor will be removed from the active list but can be restored
+      later.
     </p>
 
     <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
@@ -308,17 +315,17 @@
         class="bg-gray-100 border border-gray-300 text-gray-700 p-2 px-4 text-[11px] md:text-[13px] rounded-md hover:bg-gray-200 transition"
         @click="
           showArchiveModal = false;
-          recordToArchived = null;
+          recordToDelete = null;
         "
       >
         Cancel
       </button>
 
       <button
-        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
-        @click="confirmArchive"
+        class="bg-green-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-green-700 transition"
+        @click="confirmRestore"
       >
-        Yes, Archive
+        Yes, Return
       </button>
     </div>
   </div>
@@ -498,12 +505,12 @@ import AddInstructor from "../modals/add-instructor.vue";
 import EditInstructor from "../modals/edit-instructor.vue";
 import UploadInstructorExcel from "../modals/upload-instructor.vue";
 import { toast } from "vue3-toastify";
-import { useFetchDataStore } from "../../../../store/fetch-data-store";
+import { useFetchDataStore } from "../../../../store/fetch-data-store.js";
 import { mapState } from "pinia";
 import axios from "axios";
 
 export default {
-  name: "TableFacultySchedule",
+  name: "TableFacultyArchive",
   components: {
     AddInstructor,
     EditInstructor,
@@ -520,7 +527,7 @@ export default {
       isEdit: false,
       isTable: true,
       showArchiveModal: false,
-      recordToArchived: null,
+      recordToDelete: null,
       selectedInstructor: null, // 🔁 Renamed for clarity
       showEditModal: false, // ✅ Needed to show/hide modal
       isUploadData: false,
@@ -535,7 +542,7 @@ export default {
 
       return this.instructors.filter((item) => {
         return (
-          !item.is_archive &&
+          item.is_archive &&
           `${item.instructor_fname} ${item.instructor_mname} ${item.instructor_lname}`
             .toLowerCase()
             .includes(query)
@@ -576,19 +583,20 @@ export default {
     },
   },
   methods: {
-    toggleArchive(item) {
-      this.recordToArchived = item; // reuse existing variable
-      this.showArchiveModal = true; // reuse existing modal
+    toggleRestore(item) {
+      this.recordToDelete = item;
+      this.showArchiveModal = true;
     },
-    async confirmArchive() {
-      if (!this.recordToArchived) return;
+
+    async confirmRestore() {
+      if (!this.recordToDelete) return;
 
       try {
         await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/instructors/update-instructor/${this.recordToArchived.instructor_id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/instructors/update-instructor/${this.recordToDelete.instructor_id}`,
           {
-            is_archive: true,
-            is_active: false,
+            is_archive: false,
+            is_active: true,
           },
         );
 
@@ -596,12 +604,12 @@ export default {
         await store.fetchInstructors();
 
         this.showArchiveModal = false;
-        this.recordToArchived = null;
+        this.recordToDelete = null;
 
-        toast.success("Instructor archived successfully");
+        toast.success("Instructor restored successfully");
       } catch (error) {
         console.error(error);
-        toast.error("Failed to archive instructor");
+        toast.error("Failed to restored instructor");
       }
     },
     toggleView(item) {
@@ -629,14 +637,14 @@ export default {
     },
 
     toggleDelete(item) {
-      this.recordToArchived = item;
+      this.recordToDelete = item;
       this.showArchiveModal = true;
     },
     async confirmDelete() {
-      if (!this.recordToArchived) return;
+      if (!this.recordToDelete) return;
       try {
         await axios.delete(
-          `${process.env.VUE_APP_API_BASE_URL}/instructors/delete-id/${this.recordToArchived.instructor_id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/instructors/delete-id/${this.recordToDelete.instructor_id}`,
         );
 
         // Play sound after successful delete
@@ -647,7 +655,7 @@ export default {
         const store = useFetchDataStore();
         await store.fetchInstructors();
 
-        this.recordToArchived = null;
+        this.recordToDelete = null;
         this.showArchiveModal = false;
         toast.success("Instructor deleted successfully");
       } catch (error) {

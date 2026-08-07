@@ -33,7 +33,7 @@
             >
               <option disabled value="">Select Curriculum</option>
               <option
-                v-for="curriculum in curriculums"
+                v-for="curriculum in filteredCurriculums"
                 :key="curriculum.curriculum_id"
                 :value="curriculum.curriculum_id"
               >
@@ -151,11 +151,15 @@ export default {
   },
   computed: {
     ...mapState(useFetchDataStore, ["curriculums", "courses", "sections"]),
-
+    filteredCurriculums() {
+      return this.curriculums.filter((curriculum) => !curriculum.is_archive);
+    },
     filteredCourses() {
-      if (!this.form.curriculum_id) return [];
+      if (!this.form.curriculum_id || !this.form.project_level) return [];
       return this.courses.filter(
-        (course) => course.curriculum_id === this.form.curriculum_id,
+        (course) =>
+          course.curriculum_id === this.form.curriculum_id &&
+          String(course.course_level) === String(this.form.project_level),
       );
     },
   },

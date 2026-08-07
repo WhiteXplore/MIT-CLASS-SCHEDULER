@@ -2,7 +2,7 @@
   <div v-if="isTable" class=" ">
     <div class="text-sm flex justify-between">
       <div class="text-[13px] text-text mt-4 font-regular">
-        Pages / Rooms Availability
+        User Account Management
       </div>
 
       <div
@@ -14,7 +14,7 @@
         >
           <icon :name="'add-account1.1'" class="w-4 h-4" />
         </div>
-        <span class="font-medium text-sm">Add Room</span>
+        <span class="font-medium text-sm">Add User</span>
       </div>
     </div>
 
@@ -69,13 +69,27 @@
                       <th
                         class="w-10 px-4 py-3 text-left rounded-tl-lg font-normal"
                       >
-                        ID
+                        #
                       </th>
-                      <th class="px-4 py-3 text-left font-normal">Room Name</th>
+
                       <th class="px-4 py-3 text-left font-normal">
-                        Room Number
+                        Employee ID
                       </th>
-                      <th class="px-4 py-3 text-left font-normal">Room Type</th>
+
+                      <th class="px-4 py-3 text-left font-normal">
+                        First Name
+                      </th>
+
+                      <th class="px-4 py-3 text-left font-normal">Last Name</th>
+
+                      <th class="px-4 py-3 text-left font-normal">Position</th>
+
+                      <th class="px-4 py-3 text-left font-normal">Office</th>
+
+                      <th class="px-4 py-3 text-left font-normal">Email</th>
+
+                      <th class="px-4 py-3 text-left font-normal">Role</th>
+
                       <th class="px-4 py-3 text-left rounded-tr-lg font-normal">
                         Actions
                       </th>
@@ -83,43 +97,83 @@
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(rooms_data, index) in paginatedData"
-                      :key="rooms_data.rooms_id"
+                      v-for="(user, index) in paginatedData"
+                      :key="user.id"
                       class="bg-white hover:bg-blue-50 transition-all border border-gray-200 rounded-md shadow-sm"
                     >
-                      <td class="px-4 py-3 text-left">
+                      <td class="px-4 py-3">
                         {{ startIndex + index }}
                       </td>
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_name }}
-                      </td>
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_number || "-" }}
+
+                      <td class="px-4 py-3 font-medium">
+                        {{ user.employee_id }}
                       </td>
 
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_type }}
+                      <td class="px-4 py-3">
+                        {{ user.first_name }}
                       </td>
-                      <td class="px-4 py-3 text-left">
+
+                      <td class="px-4 py-3">
+                        {{ user.last_name }}
+                      </td>
+
+                      <td class="px-4 py-3">
+                        {{ user.position }}
+                      </td>
+
+                      <td class="px-4 py-3">
+                        {{ user.office }}
+                      </td>
+
+                      <td class="px-4 py-3">
+                        {{ user.email }}
+                      </td>
+
+                      <td class="px-4 py-3">
+                        <span
+                          class="px-3 py-1 rounded-full text-xs font-semibold"
+                          :class="
+                            user.role === 'Admin'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-blue-100 text-blue-700'
+                          "
+                        >
+                          {{ user.role }}
+                        </span>
+                      </td>
+
+                      <td class="px-4 py-3">
                         <div class="flex gap-2">
                           <button
                             class="px-3 py-1 h-8 border border-blue-300 hover:bg-blue-200 text-blue-800 rounded-lg flex items-center gap-1"
-                            @click="toggleEdit(rooms_data)"
+                            @click="toggleEdit(user)"
                           >
-                            <icon name="edit" /> Edit
+                            <icon name="edit" />
+                            Edit
                           </button>
+
                           <button
-                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
-                            @click="toggleArchive(rooms_data)"
+                            class="px-3 py-1 h-8 border border-red-300 hover:bg-red-200 text-red-800 rounded-lg flex items-center gap-1"
+                            @click="toggleDelete(user)"
                           >
-                            <icon name="circle-down" /> Archive
+                            <icon name="delete" />
+                            Delete
+                          </button>
+
+                          <button
+                            class="px-3 py-1 h-8 border border-green-300 hover:bg-green-200 text-green-800 rounded-lg flex items-center gap-1"
+                            @click="toggleRestore(user)"
+                          >
+                            <icon name="undo" />
+                            Return
                           </button>
                         </div>
                       </td>
                     </tr>
+
                     <tr v-if="paginatedData.length === 0">
-                      <td colspan="5" class="text-center py-6 text-gray-400">
-                        No records found
+                      <td colspan="9" class="text-center py-8 text-gray-400">
+                        No users found
                       </td>
                     </tr>
                   </tbody>
@@ -169,14 +223,58 @@
       </div>
     </div>
   </div>
-  <addRooms v-if="isAdd" @close="closeView" @refresh="loadRooms" />
-  <editRoom
-    v-if="showEditModal && selectedRoom"
-    :roomData="selectedRoom"
+  <addUser v-if="isAdd" @close="closeView" @refresh="loadUsers" />
+
+  <addUser
+    v-if="showEditModal"
+    :userData="selectedUser"
     @close="closeModal"
-    @refresh="loadRooms"
+    @refresh="loadUsers"
   />
 
+  <!-- Delete Confirmation Modal -->
+  <div
+    v-if="showDeleteModal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
+  ></div>
+  <div
+    v-if="showDeleteModal"
+    class="rounded-xl shadow-lg w-[300px] md:w-[400px] bg-white py-6 px-4 flex flex-col items-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+  >
+    <div
+      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-red-300 animate-pulse"
+    >
+      <icon
+        name="question"
+        class="w-8 h-8 md:w-10 md:h-10 text-white flex justify-center items-center"
+      />
+    </div>
+
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
+      Delete Confirmation
+    </h1>
+    <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
+      Are you sure you want to delete this record? This action cannot be undone.
+    </p>
+
+    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-4"></div>
+
+    <div class="tracking-wide flex gap-2 mt-4">
+      <button
+        class="bg-red-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
+        @click="showDeleteModal = false"
+      >
+        No, Cancel
+      </button>
+      <button
+        class="bg-green-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
+        @click="confirmDelete"
+      >
+        Yes, Delete
+      </button>
+    </div>
+  </div>
+  <!-- Archive Confirmation Modal -->
   <div
     v-if="showArchiveModal"
     class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
@@ -196,14 +294,14 @@
     </div>
 
     <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
-      Archive Confirmation
+      Restore User Account
     </h1>
 
     <p
       class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
     >
-      Are you sure you want to archive? This room will be removed from the
-      active list but can be restored later.
+      Are you sure you want to restore? This user account will be return to the
+      active list.
     </p>
 
     <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
@@ -220,10 +318,10 @@
       </button>
 
       <button
-        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
-        @click="confirmArchive"
+        class="bg-green-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-green-700 transition"
+        @click="confirmRestore"
       >
-        Yes, Archive
+        Yes, Return
       </button>
     </div>
   </div>
@@ -231,66 +329,86 @@
 
 <script>
 import icon from "@/assets/icon.vue";
-import addRooms from "../modals/add-rooms.vue";
-import editRoom from "../modals/edit-room.vue";
 import { toast } from "vue3-toastify";
 import { useFetchDataStore } from "../../../../store/fetch-data-store";
+import addUser from "../modals/add-user.vue";
 import { mapState } from "pinia";
 import axios from "axios";
 
 export default {
-  name: "TableRooms",
+  name: "TableUsers",
+
   components: {
     icon,
-    addRooms,
-    editRoom,
+    addUser,
   },
+
   data() {
     return {
       currentPage: 1,
       itemsPerPage: 10,
       searchQuery: "",
+
       isAdd: false,
       isEdit: false,
       isTable: true,
       isUploadData: false,
+
+      showDeleteModal: false,
+      recordToDelete: null,
       showArchiveModal: false,
       recordToArchived: null,
-      selectedRoom: null,
+      selectedUser: null,
       showEditModal: false,
     };
   },
+
   computed: {
-    ...mapState(useFetchDataStore, ["rooms"]),
+    ...mapState(useFetchDataStore, ["user_accounts"]),
 
     filteredData() {
       const query = this.searchQuery.toLowerCase();
 
-      return this.rooms.filter((item) => {
+      return (this.user_accounts || []).filter((item) => {
         return (
-          !item.is_archive &&
-          [item.room_name, item.room_number, item.room_type]
-            .filter(Boolean) // skip null/undefined
+          item.is_archive &&
+          [
+            item.employee_id,
+            item.first_name,
+            item.last_name,
+            item.position,
+            item.office,
+            item.email,
+            item.role,
+          ]
+            .filter(Boolean)
             .some((field) => field.toString().toLowerCase().includes(query))
         );
       });
     },
+
     totalPages() {
       return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1;
     },
+
     paginatedData() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filteredData.slice(start, start + this.itemsPerPage);
+
+      return this.filteredData.slice(start, start + Number(this.itemsPerPage));
     },
+
     startIndex() {
       return this.filteredData.length === 0
         ? 0
         : (this.currentPage - 1) * this.itemsPerPage + 1;
     },
+
     endIndex() {
       const end = this.currentPage * this.itemsPerPage;
+
       return end > this.filteredData.length ? this.filteredData.length : end;
     },
+
     pageNumbers() {
       const total = this.totalPages;
       const current = this.currentPage;
@@ -304,65 +422,109 @@ export default {
       ) {
         range.push(i);
       }
+
       return range;
     },
   },
+
   methods: {
-    toggleArchive(item) {
+    toggleRestore(item) {
       this.recordToArchived = item; // reuse existing variable
       this.showArchiveModal = true; // reuse existing modal
     },
-    async confirmArchive() {
+    async confirmRestore() {
       if (!this.recordToArchived) return;
 
       try {
         await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/rooms/update-room/${this.recordToArchived.room_id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/user/update-user/${this.recordToArchived.id}`,
           {
-            is_archive: true,
+            is_archive: false,
           },
         );
 
         const store = useFetchDataStore();
-        await store.fetchRooms();
+        await store.fetchUserAccounts();
 
         this.showArchiveModal = false;
         this.recordToArchived = null;
 
-        toast.success("Room archived successfully");
+        toast.success("User restored successfully");
       } catch (error) {
         console.error(error);
-        toast.error("Failed to archive Room");
+        toast.error("Failed to restored User");
       }
     },
-    async loadRooms() {
-      const store = useFetchDataStore();
-      await store.fetchRooms();
+    async loadUsers() {
+      try {
+        const store = useFetchDataStore();
+        await store.fetchUserAccounts();
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load users");
+      }
     },
+
     toggleUploadData() {
       this.isUploadData = true;
       this.isTable = true;
     },
+
     toggleAdd() {
       this.isAdd = true;
       this.isTable = true;
     },
-    toggleEdit(item) {
-      this.selectedRoom = item;
+
+    toggleEdit(user) {
+      this.selectedUser = user;
       this.showEditModal = true;
+    },
+
+    toggleDelete(user) {
+      this.recordToDelete = user;
+      this.showDeleteModal = true;
+    },
+
+    async confirmDelete() {
+      if (!this.recordToDelete || !this.recordToDelete.id) {
+        toast.error("Invalid User ID");
+        return;
+      }
+
+      try {
+        await axios.delete(
+          `${process.env.VUE_APP_API_BASE_URL}/user/${this.recordToDelete.id}`,
+        );
+
+        const audio = new Audio(require("@/assets/delete.mp3"));
+        audio.play();
+
+        toast.success("User deleted successfully");
+
+        this.showDeleteModal = false;
+        this.recordToDelete = null;
+
+        await this.loadUsers();
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to delete user");
+      }
     },
 
     changePage(page) {
       this.currentPage = Math.max(1, Math.min(page, this.totalPages));
     },
+
     closeView() {
       this.isAdd = false;
       this.isUploadData = false;
     },
+
     closeModal() {
       this.showEditModal = false;
-      this.selectedRoom = null;
+      this.selectedUser = null;
     },
+
     handleBackToTable() {
       this.isEdit = false;
       this.isAdd = false;
@@ -370,8 +532,9 @@ export default {
       this.isTable = true;
     },
   },
-  mounted() {
-    this.loadRooms();
+
+  async mounted() {
+    await this.loadUsers();
   },
 };
 </script>

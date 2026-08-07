@@ -6,9 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Bachelor } from 'src/bachelor/entities/bachelor.entity';
 import { Master } from 'src/master/entities/master.entity';
 import { Doctorate } from 'src/doctorate/entities/doctorate.entity';
+import { User_Accounts } from 'src/user/entities/user.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Instructor, Bachelor, Master, Doctorate]),
+    TypeOrmModule.forFeature([
+      Instructor,
+      Bachelor,
+      Master,
+      Doctorate,
+      User_Accounts,
+    ]),
   ],
   controllers: [InstructorsController],
   providers: [InstructorsService],

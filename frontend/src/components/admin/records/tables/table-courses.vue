@@ -151,17 +151,39 @@
                       </td>
                       <td class="px-4 py-2 text-left">
                         <div class="flex gap-2">
+                          <div class="relative group inline-block">
+                            <button
+                              class="px-3 py-1 h-8 border rounded-lg flex items-center gap-1"
+                              :class="
+                                courses_data.curriculum?.is_archive
+                                  ? 'border-gray-300 text-gray-400 cursor-not-allowed bg-gray-100'
+                                  : 'border-blue-300 text-blue-800 hover:bg-blue-200'
+                              "
+                              :disabled="courses_data.curriculum?.is_archive"
+                              @click="toggleEdit(courses_data)"
+                            >
+                              <icon name="edit" />
+                              Edit
+                            </button>
+
+                            <!-- Tooltip -->
+                            <div
+                              v-if="courses_data.curriculum?.is_archive"
+                              class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block whitespace-nowrap rounded-md bg-gray-900 px-3 py-2 text-xs text-white shadow-lg z-50"
+                            >
+                              Cannot edit because the curriculum is archived.
+
+                              <!-- Arrow -->
+                              <div
+                                class="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-gray-900"
+                              ></div>
+                            </div>
+                          </div>
                           <button
-                            class="px-3 py-1 h-8 border border-blue-300 hover:bg-blue-200 text-blue-800 rounded-lg flex items-center gap-1"
-                            @click="toggleEdit(courses_data)"
+                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
+                            @click="toggleArchive(courses_data)"
                           >
-                            <icon name="edit" /> Edit
-                          </button>
-                          <button
-                            class="px-3 py-1 h-8 border border-red-300 hover:bg-red-200 text-red-800 rounded-lg flex items-center gap-1"
-                            @click="toggleDelete(courses_data)"
-                          >
-                            <icon name="delete" /> Delete
+                            <icon name="circle-down" /> Archive
                           </button>
                         </div>
                       </td>
@@ -225,45 +247,53 @@
     @close="closeModal"
     @refresh="loadCourses"
   />
-  <!-- Delete Confirmation Modal -->
   <div
-    v-if="showDeleteModal"
+    v-if="showArchiveModal"
     class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
   ></div>
+
   <div
-    v-if="showDeleteModal"
+    v-if="showArchiveModal"
     class="rounded-xl shadow-lg w-[300px] md:w-[400px] bg-white py-6 px-4 flex flex-col items-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
   >
     <div
-      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-red-300 animate-pulse"
+      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-amber-100 animate-pulse"
     >
       <icon
         name="question"
-        class="w-8 h-8 md:w-10 md:h-10 text-white flex justify-center items-center"
+        class="w-8 h-8 md:w-10 md:h-10 text-amber-600 flex justify-center items-center"
       />
     </div>
 
-    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
-      Delete Confirmation
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
+      Archive Confirmation
     </h1>
-    <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
-      Are you sure you want to delete this record? This action cannot be undone.
+
+    <p
+      class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
+    >
+      Are you sure you want to archive? This course will be removed from the
+      active list but can be restored later.
     </p>
 
-    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-4"></div>
+    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
 
-    <div class="tracking-wide flex gap-2 mt-4">
+    <div class="tracking-wide flex gap-2 mt-5">
       <button
-        class="bg-red-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
-        @click="showDeleteModal = false"
+        class="bg-gray-100 border border-gray-300 text-gray-700 p-2 px-4 text-[11px] md:text-[13px] rounded-md hover:bg-gray-200 transition"
+        @click="
+          showArchiveModal = false;
+          recordToArchived = null;
+        "
       >
-        No, Cancel
+        Cancel
       </button>
+
       <button
-        class="bg-green-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
-        @click="confirmDelete"
+        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
+        @click="confirmArchive"
       >
-        Yes, Delete
+        Yes, Archive
       </button>
     </div>
   </div>
@@ -293,8 +323,8 @@ export default {
       isEdit: false,
       isTable: true,
       isUploadData: false,
-      showDeleteModal: false,
-      recordToDelete: null,
+      showArchiveModal: false,
+      recordToArchived: null,
       selectedServiceRecord: null,
       selectedCourse: null,
       showEditModal: false,
@@ -305,19 +335,22 @@ export default {
 
     filteredData() {
       const query = this.searchQuery.toLowerCase();
-      return this.courses.filter((item) =>
-        [
-          item.course_code,
-          item.course_description,
-          item.course_offer_code,
-          item.curriculum?.curriculum_name,
-          item.course_requisite,
-        ]
-          .filter(Boolean) // skip null/undefined
-          .some((field) => field.toLowerCase().includes(query)),
-      );
-    },
 
+      return this.courses.filter((item) => {
+        return (
+          !item.is_archive &&
+          [
+            item.course_code,
+            item.course_description,
+            item.course_offer_code,
+            item.curriculum?.curriculum_name,
+            item.course_requisite,
+          ]
+            .filter(Boolean) // skip null/undefined
+            .some((field) => field.toString().toLowerCase().includes(query))
+        );
+      });
+    },
     totalPages() {
       return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1;
     },
@@ -352,6 +385,33 @@ export default {
     },
   },
   methods: {
+    toggleArchive(item) {
+      this.recordToArchived = item; // reuse existing variable
+      this.showArchiveModal = true; // reuse existing modal
+    },
+    async confirmArchive() {
+      if (!this.recordToArchived) return;
+
+      try {
+        await axios.patch(
+          `${process.env.VUE_APP_API_BASE_URL}/courses/update-course/${this.recordToArchived.course_id}`,
+          {
+            is_archive: true,
+          },
+        );
+
+        const store = useFetchDataStore();
+        await store.fetchCourses();
+
+        this.showArchiveModal = false;
+        this.recordToArchived = null;
+
+        toast.success("Courses archived successfully");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to archive Courses");
+      }
+    },
     async loadCourses() {
       const store = useFetchDataStore();
       await store.fetchCourses();
@@ -368,37 +428,7 @@ export default {
       this.selectedCourse = item;
       this.showEditModal = true;
     },
-    toggleDelete(item) {
-      this.recordToDelete = item;
-      this.showDeleteModal = true;
-    },
-    confirmDelete() {
-      if (!this.recordToDelete || isNaN(this.recordToDelete.course_id)) {
-        toast.error("Invalid course ID.");
-        return;
-      }
 
-      const courseId = this.recordToDelete.course_id;
-
-      axios
-        .delete(
-          `${process.env.VUE_APP_API_BASE_URL}/courses/delete-id/${courseId}`,
-        )
-        .then(() => {
-          this.recordToDelete = null;
-          this.showDeleteModal = false;
-          // Play sound after successful delete
-          const audio = new Audio(require("@/assets/delete.mp3"));
-          audio.play();
-
-          this.loadCourses(); // refresh the list from backend
-          toast.success("Record deleted successfully");
-        })
-        .catch((error) => {
-          console.error("Delete failed:", error);
-          toast.error("Failed to delete record.");
-        });
-    },
     changePage(page) {
       this.currentPage = Math.max(1, Math.min(page, this.totalPages));
     },

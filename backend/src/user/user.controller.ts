@@ -31,15 +31,9 @@ export class UserController {
     return await this.userService.findOne(Number(id));
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return await this.userService.update(
-      Number(id),
-      updateUserDto,
-    );
+  @Patch('update-user/:id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.update(Number(id), updateUserDto);
   }
 
   @Delete(':id')

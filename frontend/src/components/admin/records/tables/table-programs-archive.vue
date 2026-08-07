@@ -1,20 +1,8 @@
 <template>
-  <div v-if="isTable" class=" ">
+  <div v-if="isTable" class="">
     <div class="text-sm flex justify-between">
       <div class="text-[13px] text-text mt-4 font-regular">
-        Pages / Rooms Availability
-      </div>
-
-      <div
-        @click="toggleAdd"
-        class="flex items-center gap-2 px-2.5 py-1.5 border text-green-600 border-green-600 rounded-xl over:bg-green-700 hover:shadow-lg cursor-pointer transition duration-200"
-      >
-        <div
-          class="p-1 bg-green-600 bg-opacity-20 rounded-full flex items-center justify-center"
-        >
-          <icon :name="'add-account1.1'" class="w-4 h-4" />
-        </div>
-        <span class="font-medium text-sm">Add Room</span>
+        Pages / Programs
       </div>
     </div>
 
@@ -71,11 +59,15 @@
                       >
                         ID
                       </th>
-                      <th class="px-4 py-3 text-left font-normal">Room Name</th>
                       <th class="px-4 py-3 text-left font-normal">
-                        Room Number
+                        Program Name
                       </th>
-                      <th class="px-4 py-3 text-left font-normal">Room Type</th>
+                      <th class="px-4 py-3 text-left font-normal">
+                        Program Code
+                      </th>
+                      <th class="px-4 py-3 text-left font-normal">
+                        Program Major
+                      </th>
                       <th class="px-4 py-3 text-left rounded-tr-lg font-normal">
                         Actions
                       </th>
@@ -83,42 +75,42 @@
                   </thead>
                   <tbody>
                     <tr
-                      v-for="(rooms_data, index) in paginatedData"
-                      :key="rooms_data.rooms_id"
+                      v-for="(programs_data, index) in paginatedData"
+                      :key="programs_data.programs_id"
                       class="bg-white hover:bg-blue-50 transition-all border border-gray-200 rounded-md shadow-sm"
                     >
-                      <td class="px-4 py-3 text-left">
+                      <td class="px-4 py-2 text-left">
                         {{ startIndex + index }}
                       </td>
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_name }}
+                      <td class="px-4 py-2 text-left">
+                        {{ programs_data.program_name }}
                       </td>
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_number || "-" }}
+                      <td class="px-4 py-2 text-left">
+                        {{ programs_data.program_code }}
                       </td>
-
-                      <td class="px-4 py-3 text-left">
-                        {{ rooms_data.room_type }}
+                      <td class="px-4 py-2 text-left">
+                        {{ programs_data.program_major }}
                       </td>
-                      <td class="px-4 py-3 text-left">
+                      <td class="px-4 py-2 text-left">
                         <div class="flex gap-2">
                           <button
                             class="px-3 py-1 h-8 border border-blue-300 hover:bg-blue-200 text-blue-800 rounded-lg flex items-center gap-1"
-                            @click="toggleEdit(rooms_data)"
+                            @click="toggleEdit(programs_data)"
                           >
                             <icon name="edit" /> Edit
                           </button>
                           <button
-                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
-                            @click="toggleArchive(rooms_data)"
+                            class="px-3 py-1 h-8 border border-green-300 hover:bg-green-200 text-green-800 rounded-lg flex items-center gap-1"
+                            @click="toggleRestore(programs_data)"
                           >
-                            <icon name="circle-down" /> Archive
+                            <icon name="undo" />
+                            Return
                           </button>
                         </div>
                       </td>
                     </tr>
                     <tr v-if="paginatedData.length === 0">
-                      <td colspan="5" class="text-center py-6 text-gray-400">
+                      <td colspan="5" class="text-center py-8 text-gray-400">
                         No records found
                       </td>
                     </tr>
@@ -169,14 +161,15 @@
       </div>
     </div>
   </div>
-  <addRooms v-if="isAdd" @close="closeView" @refresh="loadRooms" />
-  <editRoom
-    v-if="showEditModal && selectedRoom"
-    :roomData="selectedRoom"
-    @close="closeModal"
-    @refresh="loadRooms"
-  />
+  <addProgram v-if="isAdd" @close="closeView" @refresh="loadPrograms" />
 
+  <editProgram
+    v-if="showEditModal && selectedPrograms"
+    :programData="selectedPrograms"
+    @close="closeModal"
+    @refresh="loadPrograms"
+  />
+  <!-- Archive Confirmation Modal -->
   <div
     v-if="showArchiveModal"
     class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
@@ -196,14 +189,14 @@
     </div>
 
     <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
-      Archive Confirmation
+      Restore Program
     </h1>
 
     <p
       class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
     >
-      Are you sure you want to archive? This room will be removed from the
-      active list but can be restored later.
+      Are you sure you want to restore? This program will be return to the
+      active list.
     </p>
 
     <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
@@ -220,10 +213,10 @@
       </button>
 
       <button
-        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
-        @click="confirmArchive"
+        class="bg-green-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-green-700 transition"
+        @click="confirmRestore"
       >
-        Yes, Archive
+        Yes, Return
       </button>
     </div>
   </div>
@@ -231,19 +224,18 @@
 
 <script>
 import icon from "@/assets/icon.vue";
-import addRooms from "../modals/add-rooms.vue";
-import editRoom from "../modals/edit-room.vue";
+import addProgram from "../modals/add-programs.vue";
+import editProgram from "../modals/edit-program.vue";
 import { toast } from "vue3-toastify";
-import { useFetchDataStore } from "../../../../store/fetch-data-store";
+import { useFetchDataStore } from "../../../../store/fetch-data-store.js";
 import { mapState } from "pinia";
 import axios from "axios";
-
 export default {
-  name: "TableRooms",
+  name: "TablePrograms",
   components: {
     icon,
-    addRooms,
-    editRoom,
+    addProgram,
+    editProgram,
   },
   data() {
     return {
@@ -256,25 +248,26 @@ export default {
       isUploadData: false,
       showArchiveModal: false,
       recordToArchived: null,
-      selectedRoom: null,
+      selectedPrograms: null,
       showEditModal: false,
     };
   },
   computed: {
-    ...mapState(useFetchDataStore, ["rooms"]),
+    ...mapState(useFetchDataStore, ["programs"]),
 
     filteredData() {
       const query = this.searchQuery.toLowerCase();
 
-      return this.rooms.filter((item) => {
+      return this.programs.filter((item) => {
         return (
-          !item.is_archive &&
-          [item.room_name, item.room_number, item.room_type]
-            .filter(Boolean) // skip null/undefined
-            .some((field) => field.toString().toLowerCase().includes(query))
+          item.is_archive &&
+          `${item.program_name} ${item.program_code} ${item.program_major}`
+            .toLowerCase()
+            .includes(query)
         );
       });
     },
+
     totalPages() {
       return Math.ceil(this.filteredData.length / this.itemsPerPage) || 1;
     },
@@ -294,7 +287,7 @@ export default {
     pageNumbers() {
       const total = this.totalPages;
       const current = this.currentPage;
-      const delta = 1;
+      const delta = 1; // number of pages before/after current
       const range = [];
 
       for (
@@ -304,40 +297,41 @@ export default {
       ) {
         range.push(i);
       }
+
       return range;
     },
   },
   methods: {
-    toggleArchive(item) {
+    toggleRestore(item) {
       this.recordToArchived = item; // reuse existing variable
       this.showArchiveModal = true; // reuse existing modal
     },
-    async confirmArchive() {
+    async confirmRestore() {
       if (!this.recordToArchived) return;
 
       try {
         await axios.patch(
-          `${process.env.VUE_APP_API_BASE_URL}/rooms/update-room/${this.recordToArchived.room_id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/programs/update-programs/${this.recordToArchived.program_id}`,
           {
-            is_archive: true,
+            is_archive: false,
           },
         );
 
         const store = useFetchDataStore();
-        await store.fetchRooms();
+        await store.fetchPrograms();
 
         this.showArchiveModal = false;
         this.recordToArchived = null;
 
-        toast.success("Room archived successfully");
+        toast.success("Programs restored successfully");
       } catch (error) {
         console.error(error);
-        toast.error("Failed to archive Room");
+        toast.error("Failed to restored Programs");
       }
     },
-    async loadRooms() {
+    async loadPrograms() {
       const store = useFetchDataStore();
-      await store.fetchRooms();
+      await store.fetchPrograms();
     },
     toggleUploadData() {
       this.isUploadData = true;
@@ -347,21 +341,26 @@ export default {
       this.isAdd = true;
       this.isTable = true;
     },
+
     toggleEdit(item) {
-      this.selectedRoom = item;
+      this.selectedPrograms = item;
       this.showEditModal = true;
     },
 
     changePage(page) {
       this.currentPage = Math.max(1, Math.min(page, this.totalPages));
     },
+    // tableHeightClass() {
+    //   const count = this.paginatedData.length;
+    //   return count <= 20 ? "h-auto" : "h-[10vh]";
+    // },
     closeView() {
       this.isAdd = false;
       this.isUploadData = false;
     },
     closeModal() {
       this.showEditModal = false;
-      this.selectedRoom = null;
+      this.selectedPrograms = null;
     },
     handleBackToTable() {
       this.isEdit = false;
@@ -371,7 +370,7 @@ export default {
     },
   },
   mounted() {
-    this.loadRooms();
+    this.loadPrograms();
   },
 };
 </script>

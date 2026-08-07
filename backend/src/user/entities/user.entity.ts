@@ -28,4 +28,10 @@ export class User_Accounts {
 
   @Column()
   role: string;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
 }

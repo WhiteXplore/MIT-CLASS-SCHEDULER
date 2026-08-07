@@ -3,6 +3,8 @@ import {
   IsNotEmpty,
   IsString,
   MinLength,
+  IsBoolean,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -37,4 +39,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   role: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_archive: boolean;
 }

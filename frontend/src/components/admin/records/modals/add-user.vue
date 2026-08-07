@@ -20,17 +20,74 @@
             </h1>
           </div>
 
-          <icon name="circle-close3" @click="$emit('close')" class="cursor-pointer" />
+          <icon
+            name="circle-close3"
+            @click="$emit('close')"
+            class="cursor-pointer"
+          />
         </div>
 
         <!-- Body -->
         <div class="p-5 w-[35vw] min-w-[500px]">
-          <div class="grid grid-cols-2 gap-x-4 gap-y-4 w-full">
+          <!-- Step Indicator -->
+          <div class="flex items-center justify-center mb-8">
+            <!-- Step 1 -->
+            <div class="flex items-center">
+              <div
+                :class="[
+                  'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all',
+                  step === 1
+                    ? 'bg-green-600 text-white'
+                    : 'bg-green-100 text-green-600',
+                ]"
+              >
+                1
+              </div>
+
+              <span
+                :class="[
+                  'ml-3 font-semibold',
+                  step === 1 ? 'text-green-600' : 'text-gray-500',
+                ]"
+              >
+                User Information
+              </span>
+            </div>
+
+            <div class="w-16 h-[2px] bg-gray-300 mx-5"></div>
+
+            <!-- Step 2 -->
+            <div class="flex items-center">
+              <div
+                :class="[
+                  'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all',
+                  step === 2
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-500',
+                ]"
+              >
+                2
+              </div>
+
+              <span
+                :class="[
+                  'ml-3 font-semibold',
+                  step === 2 ? 'text-green-600' : 'text-gray-500',
+                ]"
+              >
+                Account Information
+              </span>
+            </div>
+          </div>
+
+          <!-- STEP 1 -->
+          <div v-if="step === 1" class="grid grid-cols-2 gap-4">
             <!-- Employee ID -->
             <div>
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 Employee ID
               </label>
+
               <input
                 v-model="form.employee_id"
                 type="text"
@@ -45,6 +102,7 @@
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 Position
               </label>
+
               <input
                 v-model="form.position"
                 type="text"
@@ -59,6 +117,7 @@
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 First Name
               </label>
+
               <input
                 v-model="form.first_name"
                 type="text"
@@ -73,6 +132,7 @@
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 Last Name
               </label>
+
               <input
                 v-model="form.last_name"
                 type="text"
@@ -83,10 +143,11 @@
             </div>
 
             <!-- Office -->
-            <div>
+            <div class="col-span-2">
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 Office
               </label>
+
               <input
                 v-model="form.office"
                 type="text"
@@ -95,10 +156,16 @@
                 class="w-full h-11 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
+          </div>
 
+          <!-- STEP 2 -->
+          <div v-if="step === 2" class="grid grid-cols-2 gap-4">
             <!-- Role -->
             <div>
-              <label class="block mb-2 font-semibold text-sm text-gray-700"> Role </label>
+              <label class="block mb-2 font-semibold text-sm text-gray-700">
+                Role
+              </label>
+
               <select
                 v-model="form.role"
                 required
@@ -107,7 +174,6 @@
                 <option value="" disabled>Select Role</option>
                 <option value="Admin">Admin</option>
                 <option value="Faculty">Faculty</option>
-                <!-- <option value="Staff">Staff</option> -->
               </select>
             </div>
 
@@ -116,6 +182,7 @@
               <label class="block mb-2 font-semibold text-sm text-gray-700">
                 Email Address
               </label>
+
               <input
                 v-model="form.email"
                 type="email"
@@ -126,39 +193,66 @@
             </div>
 
             <!-- Password -->
-            <div v-if="!isEditMode">
+            <div class="col-span-2">
               <label class="block mb-2 font-semibold text-sm text-gray-700">
-                Password
+                {{ isEditMode ? "New Password (Optional)" : "Password" }}
               </label>
+
               <input
                 v-model="form.password"
                 type="password"
-                required
-                placeholder="Enter password"
+                :required="!isEditMode"
+                :placeholder="
+                  isEditMode
+                    ? 'Leave blank to keep current password'
+                    : 'Enter password'
+                "
                 class="w-full h-11 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
           </div>
 
-          <!-- Divider -->
           <div class="border-t border-gray-200 mt-6"></div>
 
           <!-- Buttons -->
-          <div class="flex justify-end gap-3 mt-6">
+          <div class="flex justify-between mt-6">
             <button
+              v-if="step === 2"
               type="button"
-              @click="$emit('close')"
-              class="px-5 py-2.5 rounded-lg border border-red-600 bg-red-600 text-white font-medium transition-all duration-200 hover:bg-white hover:text-red-600"
+              @click="step--"
+              class="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100"
             >
-              Cancel
+              Previous
             </button>
 
-            <button
-              type="submit"
-              class="px-5 py-2.5 rounded-lg border border-green-600 bg-green-600 text-white font-medium transition-all duration-200 hover:bg-white hover:text-green-600"
-            >
-              {{ isEditMode ? "Update User" : "Submit" }}
-            </button>
+            <div v-else></div>
+
+            <div class="flex gap-3">
+              <button
+                type="button"
+                @click="$emit('close')"
+                class="px-5 py-2.5 rounded-lg border border-red-600 bg-red-600 text-white hover:bg-white hover:text-red-600"
+              >
+                Cancel
+              </button>
+
+              <button
+                v-if="step === 1"
+                type="button"
+                @click="nextStep"
+                class="px-5 py-2.5 rounded-lg border border-green-600 bg-green-600 text-white hover:bg-white hover:text-green-600"
+              >
+                Next
+              </button>
+
+              <button
+                v-else
+                type="submit"
+                class="px-5 py-2.5 rounded-lg border border-green-600 bg-green-600 text-white hover:bg-white hover:text-green-600"
+              >
+                {{ isEditMode ? "Update User" : "Save User" }}
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -187,6 +281,7 @@ export default {
 
   data() {
     return {
+      step: 1,
       form: {
         employee_id: "",
         first_name: "",
@@ -222,6 +317,20 @@ export default {
   },
 
   methods: {
+    nextStep() {
+      if (
+        !this.form.employee_id ||
+        !this.form.first_name ||
+        !this.form.last_name ||
+        !this.form.position ||
+        !this.form.office
+      ) {
+        toast.warning("Please complete all user information.");
+        return;
+      }
+
+      this.step = 2;
+    },
     async submitData() {
       try {
         if (this.isEditMode) {
@@ -233,15 +342,21 @@ export default {
             office: this.form.office,
             email: this.form.email,
             role: this.form.role,
+            ...(this.form.password.trim() && {
+              password: this.form.password,
+            }),
           };
 
           await axios.patch(
-            `${process.env.VUE_APP_API_BASE_URL}/user/${this.userData.id}`,
-            payload
+            `${process.env.VUE_APP_API_BASE_URL}/user/update-user/${this.userData.id}`,
+            payload,
           );
           toast.success("User updated successfully");
         } else {
-          await axios.post(`${process.env.VUE_APP_API_BASE_URL}/user`, this.form);
+          await axios.post(
+            `${process.env.VUE_APP_API_BASE_URL}/user`,
+            this.form,
+          );
 
           toast.success("User created successfully");
         }

@@ -30,7 +30,7 @@ export class ProgramsController {
     return this.programsService.findOne(+id);
   }
 
-  @Patch('update-program/:id')
+  @Patch('update-programs/:id')
   update(@Param('id') id: string, @Body() updateProgramDto: UpdateProgramDto) {
     return this.programsService.update(+id, updateProgramDto);
   }

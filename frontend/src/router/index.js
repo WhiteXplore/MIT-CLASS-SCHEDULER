@@ -28,9 +28,24 @@ const routes = [
         meta: { requiresAuth: true, role: "Admin" },
       },
       {
+        path: "/archive-instructor",
+        name: "archive-instructor",
+        component: () =>
+          import("@/components/admin/records/instructors-archive.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+      },
+      {
         path: "/courses",
         name: "courses",
         component: () => import("@/components/admin/records/courses.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+      {
+        path: "/archive-courses",
+        name: "archive-courses",
+        component: () =>
+          import("@/components/admin/records/courses-archive.vue"),
         meta: { requiresAuth: true, role: "Admin" },
         children: [],
       },
@@ -43,9 +58,27 @@ const routes = [
       },
 
       {
+        path: "/archive-curriculum",
+        name: "archive-curriculum",
+        component: () =>
+          import("@/components/admin/records/curriculums-archive.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+
+      {
         path: "/programs",
         name: "programs",
         component: () => import("@/components/admin/records/programs.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+
+      {
+        path: "/archive-programs",
+        name: "archive-programs",
+        component: () =>
+          import("@/components/admin/records/programs-archive.vue"),
         meta: { requiresAuth: true, role: "Admin" },
         children: [],
       },
@@ -57,9 +90,24 @@ const routes = [
         children: [],
       },
       {
+        path: "/archive-projects",
+        name: "archive-projects",
+        component: () =>
+          import("@/components/admin/records/project-archive.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+      {
         path: "/rooms",
         name: "rooms",
         component: () => import("@/components/admin/records/rooms.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+      {
+        path: "/archive-rooms",
+        name: "archive-rooms",
+        component: () => import("@/components/admin/records/rooms-archive.vue"),
         meta: { requiresAuth: true, role: "Admin" },
         children: [],
       },
@@ -169,10 +217,18 @@ const routes = [
           ),
         meta: { requiresAuth: true, role: "Admin" },
       },
-        {
+      {
         path: "/user-accounts",
         name: "user-accounts",
         component: () => import("@/components/admin/records/user-accounts.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+        children: [],
+      },
+      {
+        path: "/archive-user-accounts",
+        name: "archive-user-accounts",
+        component: () =>
+          import("@/components/admin/records/user-accounts-archive.vue"),
         meta: { requiresAuth: true, role: "Admin" },
         children: [],
       },
@@ -185,6 +241,14 @@ const routes = [
       //     ),
       //   children: [],
       // },
+
+      {
+        path: "/profile",
+        name: "profile",
+        component: () =>
+          import("@/components/admin/navigation/profile/view-profile.vue"),
+        meta: { requiresAuth: true, role: "Admin" },
+      },
     ],
   },
   {
@@ -195,7 +259,7 @@ const routes = [
       {
         path: "/faculty-dashboard",
         name: "faculty-dashboard",
-        component: () => import("@/components/faculty/dashboard/dashboard.vue"),
+        component: () => import("@/components/admin/dashboard/dashboard.vue"),
         meta: { requiresAuth: true, role: "Faculty" },
       },
       {
@@ -212,6 +276,13 @@ const routes = [
           import(
             "@/components/faculty/faculty-records/modals/view-pdf-faculty-loadings.vue"
           ),
+        meta: { requiresAuth: true, role: "Faculty" },
+      },
+      {
+        path: "/faculty-profile",
+        name: "faculty-profile",
+        component: () =>
+          import("@/components/faculty/navigation/profile/view-profile.vue"),
         meta: { requiresAuth: true, role: "Faculty" },
       },
     ],

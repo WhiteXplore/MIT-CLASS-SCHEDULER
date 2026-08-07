@@ -16,9 +16,13 @@ export class CreateInstructorDto {
   @IsString()
   instructor_jobtype: string;
 
-    @IsOptional()
+  @IsOptional()
   @IsBoolean()
   is_active?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  is_archive: boolean;
 
   @IsOptional()
   @IsNumber()

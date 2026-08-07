@@ -112,10 +112,10 @@
                             <icon name="edit" /> Edit
                           </button>
                           <button
-                            class="px-3 py-1 h-8 border border-red-300 hover:bg-red-200 text-red-800 rounded-lg flex items-center gap-1"
-                            @click="toggleDelete(programs_data)"
+                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
+                            @click="toggleArchive(programs_data)"
                           >
-                            <icon name="delete" /> Delete
+                            <icon name="circle-down" /> Archive
                           </button>
                         </div>
                       </td>
@@ -180,45 +180,53 @@
     @close="closeModal"
     @refresh="loadPrograms"
   />
-  <!-- Delete Confirmation Modal -->
   <div
-    v-if="showDeleteModal"
+    v-if="showArchiveModal"
     class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
   ></div>
+
   <div
-    v-if="showDeleteModal"
+    v-if="showArchiveModal"
     class="rounded-xl shadow-lg w-[300px] md:w-[400px] bg-white py-6 px-4 flex flex-col items-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
   >
     <div
-      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-red-300 animate-pulse"
+      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-amber-100 animate-pulse"
     >
       <icon
         name="question"
-        class="w-8 h-8 md:w-10 md:h-10 text-white flex justify-center items-center"
+        class="w-8 h-8 md:w-10 md:h-10 text-amber-600 flex justify-center items-center"
       />
     </div>
 
-    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
-      Delete Confirmation
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
+      Archive Confirmation
     </h1>
-    <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
-      Are you sure you want to delete this record? This action cannot be undone.
+
+    <p
+      class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
+    >
+      Are you sure you want to archive? This program will be removed from the
+      active list but can be restored later.
     </p>
 
-    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-4"></div>
+    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
 
-    <div class="tracking-wide flex gap-2 mt-4">
+    <div class="tracking-wide flex gap-2 mt-5">
       <button
-        class="bg-red-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-red-800 hover:text-red-800 hover:shadow-md"
-        @click="showDeleteModal = false"
+        class="bg-gray-100 border border-gray-300 text-gray-700 p-2 px-4 text-[11px] md:text-[13px] rounded-md hover:bg-gray-200 transition"
+        @click="
+          showArchiveModal = false;
+          recordToArchived = null;
+        "
       >
-        No, Cancel
+        Cancel
       </button>
+
       <button
-        class="bg-green-400 p-2 px-3 text-[11px] md:text-[13px] rounded-md text-white hover:bg-white border hover:border-green-800 hover:text-green-800 hover:shadow-md"
-        @click="confirmDelete"
+        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
+        @click="confirmArchive"
       >
-        Yes, Delete
+        Yes, Archive
       </button>
     </div>
   </div>
@@ -248,8 +256,8 @@ export default {
       isEdit: false,
       isTable: true,
       isUploadData: false,
-      showDeleteModal: false,
-      recordToDelete: null,
+      showArchiveModal: false,
+      recordToArchived: null,
       selectedPrograms: null,
       showEditModal: false,
     };
@@ -259,11 +267,15 @@ export default {
 
     filteredData() {
       const query = this.searchQuery.toLowerCase();
-      return this.programs.filter((item) =>
-        `${item.program_name} ${item.program_code} ${item.program_major}`
-          .toLowerCase()
-          .includes(query),
-      );
+
+      return this.programs.filter((item) => {
+        return (
+          !item.is_archive &&
+          `${item.program_name} ${item.program_code} ${item.program_major}`
+            .toLowerCase()
+            .includes(query)
+        );
+      });
     },
 
     totalPages() {
@@ -300,6 +312,33 @@ export default {
     },
   },
   methods: {
+    toggleArchive(item) {
+      this.recordToArchived = item; // reuse existing variable
+      this.showArchiveModal = true; // reuse existing modal
+    },
+    async confirmArchive() {
+      if (!this.recordToArchived) return;
+
+      try {
+        await axios.patch(
+          `${process.env.VUE_APP_API_BASE_URL}/programs/update-programs/${this.recordToArchived.program_id}`,
+          {
+            is_archive: true,
+          },
+        );
+
+        const store = useFetchDataStore();
+        await store.fetchPrograms();
+
+        this.showArchiveModal = false;
+        this.recordToArchived = null;
+
+        toast.success("Programs archived successfully");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to archive Programs");
+      }
+    },
     async loadPrograms() {
       const store = useFetchDataStore();
       await store.fetchPrograms();
@@ -317,37 +356,7 @@ export default {
       this.selectedPrograms = item;
       this.showEditModal = true;
     },
-    toggleDelete(item) {
-      this.recordToDelete = item;
-      this.showDeleteModal = true;
-    },
-    confirmDelete() {
-      if (!this.recordToDelete || isNaN(this.recordToDelete.program_id)) {
-        toast.error("Invalid program ID.");
-        return;
-      }
 
-      const programId = this.recordToDelete.program_id;
-
-      axios
-        .delete(
-          `${process.env.VUE_APP_API_BASE_URL}/programs/delete-id/${programId}`,
-        )
-        .then(() => {
-          this.recordToDelete = null;
-          this.showDeleteModal = false;
-          // Play sound after successful delete
-          const audio = new Audio(require("@/assets/delete.mp3"));
-          audio.play();
-
-          this.loadPrograms();
-          toast.success("Record deleted successfully");
-        })
-        .catch((error) => {
-          console.error("Delete failed:", error);
-          toast.error("Failed to delete record.");
-        });
-    },
     changePage(page) {
       this.currentPage = Math.max(1, Math.min(page, this.totalPages));
     },

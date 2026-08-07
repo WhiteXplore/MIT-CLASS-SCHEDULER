@@ -37,6 +37,12 @@ export class Curriculum {
   @Column({ type: 'varchar', length: 100 })
   curriculum_status: string;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

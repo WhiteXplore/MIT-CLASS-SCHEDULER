@@ -4,18 +4,6 @@
       <div class="text-[13px] text-text mt-4 font-regular">
         Pages / Rooms Availability
       </div>
-
-      <div
-        @click="toggleAdd"
-        class="flex items-center gap-2 px-2.5 py-1.5 border text-green-600 border-green-600 rounded-xl over:bg-green-700 hover:shadow-lg cursor-pointer transition duration-200"
-      >
-        <div
-          class="p-1 bg-green-600 bg-opacity-20 rounded-full flex items-center justify-center"
-        >
-          <icon :name="'add-account1.1'" class="w-4 h-4" />
-        </div>
-        <span class="font-medium text-sm">Add Room</span>
-      </div>
     </div>
 
     <div class="text-[14px] bg-white rounded-xl">
@@ -109,10 +97,11 @@
                             <icon name="edit" /> Edit
                           </button>
                           <button
-                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
-                            @click="toggleArchive(rooms_data)"
+                            class="px-3 py-1 h-8 border border-green-300 hover:bg-green-200 text-green-800 rounded-lg flex items-center gap-1"
+                            @click="toggleRestore(rooms_data)"
                           >
-                            <icon name="circle-down" /> Archive
+                            <icon name="undo" />
+                            Return
                           </button>
                         </div>
                       </td>
@@ -177,6 +166,7 @@
     @refresh="loadRooms"
   />
 
+  <!-- Archive Confirmation Modal -->
   <div
     v-if="showArchiveModal"
     class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
@@ -196,14 +186,14 @@
     </div>
 
     <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
-      Archive Confirmation
+      Restore Room
     </h1>
 
     <p
       class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
     >
-      Are you sure you want to archive? This room will be removed from the
-      active list but can be restored later.
+      Are you sure you want to restore? This room will be return to the active
+      list.
     </p>
 
     <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
@@ -220,10 +210,10 @@
       </button>
 
       <button
-        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
-        @click="confirmArchive"
+        class="bg-green-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-green-700 transition"
+        @click="confirmRestore"
       >
-        Yes, Archive
+        Yes, Return
       </button>
     </div>
   </div>
@@ -234,7 +224,7 @@ import icon from "@/assets/icon.vue";
 import addRooms from "../modals/add-rooms.vue";
 import editRoom from "../modals/edit-room.vue";
 import { toast } from "vue3-toastify";
-import { useFetchDataStore } from "../../../../store/fetch-data-store";
+import { useFetchDataStore } from "../../../../store/fetch-data-store.js";
 import { mapState } from "pinia";
 import axios from "axios";
 
@@ -268,7 +258,7 @@ export default {
 
       return this.rooms.filter((item) => {
         return (
-          !item.is_archive &&
+          item.is_archive &&
           [item.room_name, item.room_number, item.room_type]
             .filter(Boolean) // skip null/undefined
             .some((field) => field.toString().toLowerCase().includes(query))
@@ -308,18 +298,18 @@ export default {
     },
   },
   methods: {
-    toggleArchive(item) {
+    toggleRestore(item) {
       this.recordToArchived = item; // reuse existing variable
       this.showArchiveModal = true; // reuse existing modal
     },
-    async confirmArchive() {
+    async confirmRestore() {
       if (!this.recordToArchived) return;
 
       try {
         await axios.patch(
           `${process.env.VUE_APP_API_BASE_URL}/rooms/update-room/${this.recordToArchived.room_id}`,
           {
-            is_archive: true,
+            is_archive: false,
           },
         );
 
@@ -329,10 +319,10 @@ export default {
         this.showArchiveModal = false;
         this.recordToArchived = null;
 
-        toast.success("Room archived successfully");
+        toast.success("Room restored successfully");
       } catch (error) {
         console.error(error);
-        toast.error("Failed to archive Room");
+        toast.error("Failed to restored Room");
       }
     },
     async loadRooms() {

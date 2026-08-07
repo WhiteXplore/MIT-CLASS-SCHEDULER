@@ -1,7 +1,9 @@
 <template>
   <div v-if="isTable" class=" ">
     <div class="text-sm flex justify-between">
-      <div class="text-[13px] text-text mt-4 font-regular">User Account Management</div>
+      <div class="text-[13px] text-text mt-4 font-regular">
+        User Account Management
+      </div>
 
       <div
         @click="toggleAdd"
@@ -54,19 +56,29 @@
           >
             <!-- Table -->
             <div class="w-full rounded-xl shadow-md overflow-hidden">
-              <div class="overflow-y-auto max-h-[63vh] transition-all duration-300">
+              <div
+                class="overflow-y-auto max-h-[63vh] transition-all duration-300"
+              >
                 <table
                   class="min-w-full table-auto border-separate border-spacing-y-2 text-sm text-gray-700"
                 >
-                  <thead class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide">
+                  <thead
+                    class="bg-blue-800 text-white sticky top-0 z-10 tracking-wide"
+                  >
                     <tr>
-                      <th class="w-10 px-4 py-3 text-left rounded-tl-lg font-normal">
+                      <th
+                        class="w-10 px-4 py-3 text-left rounded-tl-lg font-normal"
+                      >
                         #
                       </th>
 
-                      <th class="px-4 py-3 text-left font-normal">Employee ID</th>
+                      <th class="px-4 py-3 text-left font-normal">
+                        Employee ID
+                      </th>
 
-                      <th class="px-4 py-3 text-left font-normal">First Name</th>
+                      <th class="px-4 py-3 text-left font-normal">
+                        First Name
+                      </th>
 
                       <th class="px-4 py-3 text-left font-normal">Last Name</th>
 
@@ -140,12 +152,19 @@
                             Edit
                           </button>
 
-                          <button
+                          <!-- <button
                             class="px-3 py-1 h-8 border border-red-300 hover:bg-red-200 text-red-800 rounded-lg flex items-center gap-1"
                             @click="toggleDelete(user)"
                           >
                             <icon name="delete" />
                             Delete
+                          </button> -->
+
+                          <button
+                            class="px-3 py-1 h-8 border border-amber-300 hover:bg-amber-200 text-amber-800 rounded-lg flex items-center gap-1"
+                            @click="toggleArchive(user)"
+                          >
+                            <icon name="circle-down" /> Archive
                           </button>
                         </div>
                       </td>
@@ -230,7 +249,9 @@
       />
     </div>
 
-    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">Delete Confirmation</h1>
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4">
+      Delete Confirmation
+    </h1>
     <p class="mt-2 text-[12px] md:text-[13px] text-center px-8">
       Are you sure you want to delete this record? This action cannot be undone.
     </p>
@@ -249,6 +270,56 @@
         @click="confirmDelete"
       >
         Yes, Delete
+      </button>
+    </div>
+  </div>
+  <div
+    v-if="showArchiveModal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-30 flex justify-center items-center z-50 w-min-screen"
+  ></div>
+
+  <div
+    v-if="showArchiveModal"
+    class="rounded-xl shadow-lg w-[300px] md:w-[400px] bg-white py-6 px-4 flex flex-col items-center fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+  >
+    <div
+      class="rounded-full w-16 h-16 md:w-20 md:h-20 flex justify-center items-center bg-amber-100 animate-pulse"
+    >
+      <icon
+        name="question"
+        class="w-8 h-8 md:w-10 md:h-10 text-amber-600 flex justify-center items-center"
+      />
+    </div>
+
+    <h1 class="text-[14px] md:text-[16px] font-semibold mt-4 text-gray-800">
+      Archive Confirmation
+    </h1>
+
+    <p
+      class="mt-2 text-[12px] md:text-[13px] text-center px-8 text-gray-500 leading-6"
+    >
+      Are you sure you want to archive? This program will be removed from the
+      active list but can be restored later.
+    </p>
+
+    <div class="w-full h-[1px] rounded-md bg-gray-200 mt-5"></div>
+
+    <div class="tracking-wide flex gap-2 mt-5">
+      <button
+        class="bg-gray-100 border border-gray-300 text-gray-700 p-2 px-4 text-[11px] md:text-[13px] rounded-md hover:bg-gray-200 transition"
+        @click="
+          showArchiveModal = false;
+          recordToArchived = null;
+        "
+      >
+        Cancel
+      </button>
+
+      <button
+        class="bg-amber-600 p-2 px-4 text-[11px] md:text-[13px] rounded-md text-white hover:bg-amber-700 transition"
+        @click="confirmArchive"
+      >
+        Yes, Archive
       </button>
     </div>
   </div>
@@ -283,7 +354,8 @@ export default {
 
       showDeleteModal: false,
       recordToDelete: null,
-
+      showArchiveModal: false,
+      recordToArchived: null,
       selectedUser: null,
       showEditModal: false,
     };
@@ -295,19 +367,22 @@ export default {
     filteredData() {
       const query = this.searchQuery.toLowerCase();
 
-      return (this.user_accounts || []).filter((item) =>
-        [
-          item.employee_id,
-          item.first_name,
-          item.last_name,
-          item.position,
-          item.office,
-          item.email,
-          item.role,
-        ]
-          .filter(Boolean)
-          .some((field) => field.toString().toLowerCase().includes(query))
-      );
+      return (this.user_accounts || []).filter((item) => {
+        return (
+          !item.is_archive &&
+          [
+            item.employee_id,
+            item.first_name,
+            item.last_name,
+            item.position,
+            item.office,
+            item.email,
+            item.role,
+          ]
+            .filter(Boolean)
+            .some((field) => field.toString().toLowerCase().includes(query))
+        );
+      });
     },
 
     totalPages() {
@@ -351,6 +426,33 @@ export default {
   },
 
   methods: {
+    toggleArchive(item) {
+      this.recordToArchived = item; // reuse existing variable
+      this.showArchiveModal = true; // reuse existing modal
+    },
+    async confirmArchive() {
+      if (!this.recordToArchived) return;
+
+      try {
+        await axios.patch(
+          `${process.env.VUE_APP_API_BASE_URL}/user/update-user/${this.recordToArchived.id}`,
+          {
+            is_archive: true,
+          },
+        );
+
+        const store = useFetchDataStore();
+        await store.fetchUserAccounts();
+
+        this.showArchiveModal = false;
+        this.recordToArchived = null;
+
+        toast.success("User archived successfully");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to archive User");
+      }
+    },
     async loadUsers() {
       try {
         const store = useFetchDataStore();
@@ -389,7 +491,7 @@ export default {
 
       try {
         await axios.delete(
-          `${process.env.VUE_APP_API_BASE_URL}/user/${this.recordToDelete.id}`
+          `${process.env.VUE_APP_API_BASE_URL}/user/${this.recordToDelete.id}`,
         );
 
         const audio = new Audio(require("@/assets/delete.mp3"));

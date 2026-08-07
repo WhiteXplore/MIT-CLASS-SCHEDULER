@@ -42,6 +42,12 @@ export class Course {
   @Column({ type: 'varchar', length: 255, nullable: true })
   course_requisite: string;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

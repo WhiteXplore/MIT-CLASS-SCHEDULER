@@ -62,7 +62,10 @@
         <div v-if="isExpanded" class="w-full h-0.5 bg-[#fbfbfb] mt-4"></div>
 
         <!-- Dynamic Menu -->
-        <div class="flex flex-col mt-6 gap-2 tracking-wide text-[12px] w-full">
+        <!-- Dynamic Menu -->
+        <div
+          class="flex flex-col mt-6 gap-2 tracking-wide text-[12px] w-full overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-hide"
+        >
           <template v-for="section in menuSections" :key="section.title">
             <!-- Section Title -->
             <div v-if="isExpanded" class="text-md text-white text-left mt-2">
@@ -106,7 +109,9 @@
                   <div
                     class="flex items-center"
                     :class="[
-                      !isExpanded ? 'justify-center w-full' : 'justify-start gap-5',
+                      !isExpanded
+                        ? 'justify-center w-full'
+                        : 'justify-start gap-5',
                     ]"
                   >
                     <icon :name="item.icon" />
@@ -136,7 +141,9 @@
                         $route.path.startsWith(sub.route)
                           ? 'bg-blue-300 text-blue-900'
                           : 'bg-white text-gray-800 hover:bg-gray-200',
-                        index === item.children.length - 1 ? 'rounded-b-md' : '',
+                        index === item.children.length - 1
+                          ? 'rounded-b-md'
+                          : '',
                       ]"
                     >
                       {{ sub.name }}
@@ -215,6 +222,20 @@ export default {
                 { name: "Projections", route: "/projects" },
                 { name: "Rooms", route: "/rooms" },
                 { name: "Time Slots", route: "/time" },
+              ],
+            },
+            {
+              name: "Archives",
+              icon: "entries",
+              children: [
+                { name: "Instructors", route: "/archive-instructor" },
+                { name: "Programs", route: "/archive-programs" },
+                { name: "Curriculum", route: "/archive-curriculum" },
+                { name: "Courses", route: "/archive-courses" },
+
+                { name: "Projections", route: "/archive-projects" },
+                { name: "Rooms", route: "/archive-rooms" },
+                { name: "User Accounts", route: "/archive-user-accounts" },
               ],
             },
           ],
@@ -327,7 +348,9 @@ export default {
       for (const section of this.menuSections) {
         for (const item of section.items) {
           if (item.children) {
-            const found = item.children.find((child) => path.startsWith(child.route));
+            const found = item.children.find((child) =>
+              path.startsWith(child.route),
+            );
 
             if (found) {
               this.isExpanded = true;
@@ -344,9 +367,12 @@ export default {
     },
     async fetchUser() {
       try {
-        const response = await axios.get(process.env.VUE_APP_API_BASE_URL + "/auth/me", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          process.env.VUE_APP_API_BASE_URL + "/auth/me",
+          {
+            withCredentials: true,
+          },
+        );
 
         if (response.data) {
           this.user = response.data;

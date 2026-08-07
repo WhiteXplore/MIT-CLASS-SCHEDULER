@@ -20,6 +20,12 @@ export class Room {
   @Column({ type: 'varchar', length: 100 })
   room_name: string;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  is_archive: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

@@ -16,10 +16,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      10,
-    );
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepository.create({
       ...createUserDto,
@@ -40,6 +37,7 @@ export class UserService {
         'office',
         'email',
         'role',
+        'is_archive',
       ],
       order: {
         id: 'DESC',
@@ -53,34 +51,26 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException(
-        `User with ID ${id} not found`,
-      );
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     return user;
   }
 
-async update(
-  id: number,
-  updateUserDto: UpdateUserDto,
-) {
-  const user = await this.findOne(id);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
 
-  // Only update password if supplied
-  if (updateUserDto.password) {
-    updateUserDto.password = await bcrypt.hash(
-      updateUserDto.password,
-      10,
-    );
-  } else {
-    delete updateUserDto.password;
+    // Only update password if supplied
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    } else {
+      delete updateUserDto.password;
+    }
+
+    Object.assign(user, updateUserDto);
+
+    return await this.userRepository.save(user);
   }
-
-  Object.assign(user, updateUserDto);
-
-  return await this.userRepository.save(user);
-}
 
   async remove(id: number) {
     const user = await this.findOne(id);
