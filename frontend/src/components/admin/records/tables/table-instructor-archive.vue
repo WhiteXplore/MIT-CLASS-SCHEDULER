@@ -21,7 +21,7 @@
               <option value="15">15</option>
               <option value="20">20</option>
             </select>
-            <span class="ml-2">Per page</span>
+            <span class="ml-2">Per pages</span>
           </div>
 
           <!-- Search -->
